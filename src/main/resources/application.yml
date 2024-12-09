@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: shoppingmall-service
+
+
+eureka:
+  client:
+    enabled: false
+
