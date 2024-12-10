@@ -1,7 +1,10 @@
 package com.nhnacademy.shoppingmallservice.User;
 
+import lombok.Getter;
+
 import java.util.List;
 
+@Getter
 public class User {
     private final String userId;
     private final String userPassword;
