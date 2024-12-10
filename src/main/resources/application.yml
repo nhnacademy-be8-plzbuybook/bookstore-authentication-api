@@ -7,3 +7,16 @@ eureka:
   client:
     enabled: false
 
+server:
+  port: 8100
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+
+jwt:
+  secret: Ny0pm2CWIAST07ElsTAVZgCqJKJd2bE9lpKyewuOhyyKoBApt1Ny0pm2CWIAST07ElsTAVZgCqJKJd2bE9lpKyewuOhyyKoBApt1
+  expiration_time: 3600
+  token_prefix: Bearer
+  header_string: Authorization
+  login_url: /api/account/login
