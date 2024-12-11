@@ -1,0 +1,8 @@
+### GET request to example server
+GET https://examples.http-client.intellij.net/get
+    ?generated-in=IntelliJ IDEA
+
+###
+
+### 인증 서버의 /hello 엔드포인트 호출
+GET http://localhost:8081/hello
