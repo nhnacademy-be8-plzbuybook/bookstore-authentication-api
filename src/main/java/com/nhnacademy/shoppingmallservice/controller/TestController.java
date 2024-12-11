@@ -1,24 +1,24 @@
-package com.nhnacademy.shoppingmallservice.controller;
-
-import com.nhnacademy.shoppingmallservice.User.User;
-import com.nhnacademy.shoppingmallservice.dto.LoginRequest;
-import com.nhnacademy.shoppingmallservice.dto.TokenResponse;
-import com.nhnacademy.shoppingmallservice.properties.JwtProperties;
-import com.nhnacademy.shoppingmallservice.service.MemberService;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-@RestController
-public class TestController {
-
+//package com.nhnacademy.shoppingmallservice.controller;
+//
+//import com.nhnacademy.shoppingmallservice.User.User;
+//import com.nhnacademy.shoppingmallservice.dto.LoginRequest;
+//import com.nhnacademy.shoppingmallservice.dto.TokenResponse;
+//import com.nhnacademy.shoppingmallservice.properties.JwtProperties;
+//import com.nhnacademy.shoppingmallservice.service.MemberService;
+//import io.jsonwebtoken.Jwts;
+//import io.jsonwebtoken.SignatureAlgorithm;
+//import org.springframework.http.HttpStatus;
+//import org.springframework.http.ResponseEntity;
+//import org.springframework.web.bind.annotation.*;
+//
+//
+//import java.util.Date;
+//import java.util.List;
+//import java.util.Map;
+//
+//@RestController
+//public class TestController {
+//
 //    private final Map<String, User> temp = Map.of(
 //            "admin", User.createAdmin("admin", "관리자", "1234"),
 //            "user", User.createUser("user", "사용자", "1234")
@@ -47,5 +47,5 @@ public class TestController {
 //        }
 //        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 //    }
-
-}
+//
+//}

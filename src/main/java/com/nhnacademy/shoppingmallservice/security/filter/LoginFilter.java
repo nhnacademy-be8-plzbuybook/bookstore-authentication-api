@@ -33,7 +33,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         // 로그인 성공시 토큰 생성
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password, null);
-        // 토큰에 담은 검증을 위해 AuthenticationManager 전달
+        System.out.println("토큰 생성됨!"+authToken);
         return authenticationManager.authenticate(authToken);
     }
 
