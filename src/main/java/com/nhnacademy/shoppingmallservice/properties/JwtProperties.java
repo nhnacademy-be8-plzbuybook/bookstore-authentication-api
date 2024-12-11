@@ -1,3 +1,4 @@
+
 package com.nhnacademy.shoppingmallservice.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
