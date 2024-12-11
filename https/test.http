@@ -1,0 +1,12 @@
+### GET request to example server
+GET https://examples.http-client.intellij.net/get
+    ?generated-in=IntelliJ IDEA
+
+### 테스트
+POST localhost:8082/api/members
+Content-Type: application/json
+
+{
+  "username": "test1",
+  "password": "1234"
+}
