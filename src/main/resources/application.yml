@@ -1,9 +1,17 @@
+server:
+  port: 8082
+
+
 spring:
   application:
-    name: shoppingmall-service
-
-
+    name: authentication
+# 유레카에 등록
 eureka:
   client:
-    enabled: false
-
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://127.0.0.1:8761/eureka
+  instance:
+    instance-id: auth-server
+#    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
