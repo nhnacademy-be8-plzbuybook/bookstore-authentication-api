@@ -37,8 +37,8 @@ jobs:
         username: ${{ secrets.SSH_ID }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        source: "/home/nhnacademy/auth/target/*.jar"
-        target: "~/"
+        source: "target/*.jar"
+        target: "/home/nhnacademy/auth/target/"
         rm: false
 
     - name: execute shell script
