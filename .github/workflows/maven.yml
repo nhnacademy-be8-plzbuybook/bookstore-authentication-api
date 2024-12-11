@@ -29,7 +29,7 @@ jobs:
         cache: maven
     - name: Build with Maven
       run: mvn -B package --file pom.xml
-      
+    
     - name : upload file
       uses: appleboy/scp-action@master
       with:
@@ -37,7 +37,7 @@ jobs:
         username: ${{ secrets.SSH_ID }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        source: "target/*.jar"
+        source: "/home/nhnacademy/auth/target/*.jar"
         target: "~/"
         rm: false
 
@@ -49,7 +49,7 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
         script_stop: true
-        script: "./startup.sh"
+        script: "/home/nhnacademy/auth/startup.sh"
 
     # # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     # - name: Update dependency graph
