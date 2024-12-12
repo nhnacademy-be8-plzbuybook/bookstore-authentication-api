@@ -1,13 +1,14 @@
 package com.nhnacademy.shoppingmallservice.service;
 
 import com.nhnacademy.shoppingmallservice.dto.MemberDto;
-import com.nhnacademy.shoppingmallservice.security.util.JwtUtil;
+import com.nhnacademy.shoppingmallservice.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
@@ -49,7 +50,7 @@ public class TokenService {
             throw new IllegalArgumentException("Refresh Token 과 맞지 않습니다");
         }
 
-        MemberDto memberDto = new MemberDto(email, null);
+        MemberDto memberDto = new MemberDto(UUID.randomUUID().toString(), email, null);
         return jwtUtil.generateAccessToken(memberDto);
     }
 }

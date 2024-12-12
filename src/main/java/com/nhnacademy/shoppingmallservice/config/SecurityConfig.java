@@ -1,8 +1,9 @@
 package com.nhnacademy.shoppingmallservice.config;
 
 
-import com.nhnacademy.shoppingmallservice.security.filter.LoginFilter;
-import com.nhnacademy.shoppingmallservice.security.util.JwtUtil;
+import com.nhnacademy.shoppingmallservice.oauth2.CustomOAuth2UserService;
+import com.nhnacademy.shoppingmallservice.oauth2.OAuth2AuthenticationSuccessHandler;
+import com.nhnacademy.shoppingmallservice.util.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,16 +14,19 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JwtUtil jwtUtil;
 
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JwtUtil jwtUtil) {
+    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService, OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler, AuthenticationConfiguration authenticationConfiguration, JwtUtil jwtUtil) {
+        this.customOAuth2UserService = customOAuth2UserService;
+        this.oAuth2AuthenticationSuccessHandler = oAuth2AuthenticationSuccessHandler;
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtUtil = jwtUtil;
     }
@@ -34,7 +38,6 @@ public class SecurityConfig {
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
-
         return new BCryptPasswordEncoder();
     }
 
@@ -45,12 +48,18 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth ->
-                        auth
-                                .requestMatchers("/api/login","/api/members/**").permitAll()
-                                .anyRequest().permitAll()
+                                auth
+//                                .requestMatchers("/api/login","/api/members/**").permitAll()
+//                                .requestMatchers("/oauth2/authorization/**").permitAll()
+                                        .requestMatchers("/**").permitAll()
+                                        .anyRequest().permitAll()
                 );
 
-        http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
+        http.oauth2Login(oauthLogin -> oauthLogin
+                .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+                .successHandler(oAuth2AuthenticationSuccessHandler)
+        );
+
         http.sessionManagement((session) -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 

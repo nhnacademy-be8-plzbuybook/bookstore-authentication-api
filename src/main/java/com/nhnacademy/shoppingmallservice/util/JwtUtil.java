@@ -1,4 +1,4 @@
-package com.nhnacademy.shoppingmallservice.security.util;
+package com.nhnacademy.shoppingmallservice.util;
 
 import com.nhnacademy.shoppingmallservice.dto.MemberDto;
 import com.nhnacademy.shoppingmallservice.properties.JwtProperties;
