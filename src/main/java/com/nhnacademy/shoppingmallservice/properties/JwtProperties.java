@@ -1,11 +1,14 @@
 
 package com.nhnacademy.shoppingmallservice.properties;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 
+@Setter
+@Getter
 @ConfigurationProperties(prefix = "jwt")
 @Component
 public class JwtProperties {
@@ -14,40 +17,4 @@ public class JwtProperties {
     private Integer refreshExpirationTime;
     private String tokenPrefix;
     private String headerString;
-    private String loginUrl;
-
-    public String getSecret() {
-        return secret;
-    }
-
-    public Integer getExpirationTime() {
-        return expirationTime;
-    }
-
-    public Integer getRefreshExpirationTime() {
-        return refreshExpirationTime;
-    }
-
-    public String getTokenPrefix() {
-        return tokenPrefix;
-    }
-
-    public String getHeaderString() {
-        return headerString;
-    }
-
-    public String getLoginUrl() {
-        return loginUrl;
-    }
-
-    public void setSecret(String secret) {
-        this.secret = secret;
-    }
-
-    public void setExpirationTime(Integer expirationTime) {
-        this.expirationTime = expirationTime;
-    }
-
-    public void setRefreshExpirationTime(Integer refreshExpirationTime) {
-        this.refreshExpirationTime = refreshExpirationTime;
-    }
+}

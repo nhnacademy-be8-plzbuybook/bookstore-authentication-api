@@ -2,7 +2,7 @@ package com.nhnacademy.shoppingmallservice.config;
 
 
 import com.nhnacademy.shoppingmallservice.security.filter.LoginFilter;
-import com.nhnacademy.shoppingmallservice.security.util.JWTUtil;
+import com.nhnacademy.shoppingmallservice.security.util.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,9 +20,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
-    private final JWTUtil jwtUtil;
+    private final JwtUtil jwtUtil;
 
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil) {
+    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JwtUtil jwtUtil) {
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtUtil = jwtUtil;
     }
