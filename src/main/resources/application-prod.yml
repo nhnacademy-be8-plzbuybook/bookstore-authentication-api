@@ -3,6 +3,7 @@ spring:
     activate:
       on-profile: prod
 
+
 eureka:
   client:
     register-with-eureka: true

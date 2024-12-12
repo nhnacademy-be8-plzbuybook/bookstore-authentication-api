@@ -51,16 +51,3 @@ public class JwtProperties {
     public void setRefreshExpirationTime(Integer refreshExpirationTime) {
         this.refreshExpirationTime = refreshExpirationTime;
     }
-
-    public void setTokenPrefix(String tokenPrefix) {
-        this.tokenPrefix = tokenPrefix;
-    }
-
-    public void setHeaderString(String headerString) {
-        this.headerString = headerString;
-    }
-
-    public void setLoginUrl(String loginUrl) {
-        this.loginUrl = loginUrl;
-    }
-}
