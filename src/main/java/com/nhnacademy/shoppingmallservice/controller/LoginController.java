@@ -19,7 +19,7 @@ public class LoginController {
     @PostMapping("/api/login")
     public ResponseEntity<?> login(@RequestParam String username, @RequestParam String password) {
         // JWT 토큰을 생성 (JWTUtil에서 처리)
-        String token = jwtUtil.createJwt(username, "ROLE_USER", 60*60*1L);
+        String token = jwtUtil.createJwt(username, "ROLE_USER", 60*60*1000L);
 
         if (token != null) {
             return ResponseEntity.ok("로그인 성공, JWT 토큰: " + token);

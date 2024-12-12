@@ -7,9 +7,9 @@ POST http://localhost:8082/api/members
 Content-Type: application/json
 
 {
-  "username": "test",
+  "username": "test1",
   "password": "1234",
-  "role": "ROLE_ADMIN"
+  "role": "ROLE_MEMBER"
 }
 
 
@@ -17,5 +17,5 @@ Content-Type: application/json
 POST localhost:8082/api/login
 Content-Type: application/x-www-form-urlencoded
 
-username=testuser&password=testpassword
+username=test1&password=1234
 
