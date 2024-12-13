@@ -33,9 +33,9 @@ spring:
 #      active: dev
 
 jwt:
-  secret: ${JWT_SECRET} #Ny0pm2CWIAST07ElsTAVZgCqJKJd2bE9lpKyewuOhyyKoBApt1Ny0pm2CWIAST07ElsTAVZgCqJKJd2bE9lpKyewuOhyyKoBApt1
-  expiration_time: 3600
-  refresh_expiration_time: 7200
+  secret: Ny0pm2CWIAST07ElsTAVZgCqJKJd2bE9lpKyewuOhyyKoBApt1Ny0pm2CWIAST07ElsTAVZgCqJKJd2bE9lpKyewuOhyyKoBApt1 #${JWT_SECRET}
+  expiration_time: 36000
+  refresh_expiration_time: 720000
   token_prefix: Bearer
   header_string: Authorization
   login_url: /api/login
@@ -79,7 +79,7 @@ spring:
 #      active: dev ????
 
 jwt:
-  secret: ${JWT_SECRET} #Ny0pm2CWIAST07ElsTAVZgCqJKJd2bE9lpKyewuOhyyKoBApt1Ny0pm2CWIAST07ElsTAVZgCqJKJd2bE9lpKyewuOhyyKoBApt1
+  secret: Ny0pm2CWIAST07ElsTAVZgCqJKJd2bE9lpKyewuOhyyKoBApt1Ny0pm2CWIAST07ElsTAVZgCqJKJd2bE9lpKyewuOhyyKoBApt1 #${JWT_SECRET}
   expiration_time: 3600
   refresh_expiration_time: 7200
   token_prefix: Bearer
