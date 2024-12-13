@@ -24,7 +24,7 @@ public class OAuth2AuthorizeService {
     private final String RESPONSE_TYPE = "code"; // 페이코 인증 과정에 대한 구분값(code 로 고정)
     private final String CLIENT_ID = "3RD3UsjzB1Vz4wzS7dt4veD"; // TODO: 클라이언트의 ID
     private final String CLIENT_SECRET = "Ec_7BOIvDqa4eZzi7723exB8"; // TODO: 클라이언트의 비밀키
-    private final String REDIRECT_URL = "http://plzbuybook.store"; // TODO: 리다이렉트할 URL
+    private final String REDIRECT_URL = "http://test.com/login/oauth2/code/payco"; // TODO: 리다이렉트할 URL
     private final String TOKEN_URL = "https://id.payco.com/oauth2.0/token";
     private final String USER_INFO_URL = "https://apis-payco.krp.toastoven.net/payco/friends/find_member_v2.json";
     private final String GRANT_TYPE = "authorization_code";

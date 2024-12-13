@@ -2,6 +2,23 @@ spring:
   application:
     name: shoppingmall-service
 
+  security:
+    oauth2:
+        client:
+            registration:
+                payco:
+                    client-id: 3RD3UsjzB1Vz4wzS7dt4veD
+                    client-secret: Ec_7BOIvDqa4eZzi7723exB8
+                    redirect-uri: http://test.com/login/oauth2/code/payco
+                    authorization-grant-type: authorization_code
+                    client-name: Payco
+            provider:
+                payco:
+                    authorization-uri: https://id.payco.com/oauth2.0/authorize
+                    token-uri: https://id.payco.com/oauth2.0/token
+                    user-info-uri: https://apis-payco.krp.toastoven.net/payco/friends/find_member_v2.json
+                    user-name-attribute: email
+                #logout-uri: https://id.payco.com/oauth2.0/logout
   thymeleaf:
     prefix: classpath:/templates/
     suffix: .html
@@ -14,20 +31,3 @@ spring:
 server:
   port: 8082 # 인증서버 포트
 
-security:
-    oauth2:
-        client:
-            registration:
-                payco:
-                    client-id: 3RD3UsjzB1Vz4wzS7dt4veD
-                    client-secret: Ec_7BOIvDqa4eZzi7723exB8
-                    redirect-uri: "{baseUrl}/login/oauth2/code/payco"
-                    authorization-grant-type: authorization_code
-                    client-name: Payco
-            provider:
-                payco:
-                    authorization-uri: https://id.payco.com/oauth2.0/authorize
-                    token-uri: https://id.payco.com/oauth2.0/token
-                    user-info-uri: https://apis-payco.krp.toastoven.net/payco/friends/find_member_v2.json
-                    user-name-attribute: email
-                    logout-uri: https://id.payco.com/oauth2.0/logout

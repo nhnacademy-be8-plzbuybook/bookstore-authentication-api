@@ -1,9 +1,11 @@
 package com.nhnacademy.shoppingmallservice.dto;
 
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
-public class LoginRequest {
+@Setter
+public class LoginRequestDTO {
     private String email;
     private String password;
 }

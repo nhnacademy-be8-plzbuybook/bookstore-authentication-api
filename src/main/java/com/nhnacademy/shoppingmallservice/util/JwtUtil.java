@@ -85,4 +85,8 @@ public class JwtUtil {
     public Long getRefreshTokenValidity() {
         return jwtProperties.getRefreshExpirationTime().longValue();
     }
+
+    public long getExpirationTime() {
+        return jwtProperties.getExpirationTime().longValue();
+    }
 }
