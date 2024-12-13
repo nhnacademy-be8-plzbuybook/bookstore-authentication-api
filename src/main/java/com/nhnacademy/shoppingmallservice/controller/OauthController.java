@@ -21,7 +21,7 @@ public class OauthController {
     private final FrontClient frontClient;
     private final CustomTokenServiceImpl tokenService;
 
-    @GetMapping("/api/oauth/login") //?provider=payco로 변경
+    @GetMapping("/api/oauth/login")
     public void oauthLoginPage(@RequestParam("provider") String provider, HttpServletResponse response) {
         switch (provider) {
             case "payco":

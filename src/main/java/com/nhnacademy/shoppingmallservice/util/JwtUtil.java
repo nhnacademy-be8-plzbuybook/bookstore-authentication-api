@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 @Component
 public class JwtUtil {
@@ -40,7 +39,6 @@ public class JwtUtil {
 
     private String createJwt(String email, String role, Long expiredTime) {
         Claims claims = Jwts.claims();
-//        claims.put("email", email);
 
         if (role != null) {
             claims.put("role", role);
@@ -55,10 +53,16 @@ public class JwtUtil {
                 .compact();
     }
 
-    // Redis 에 저장된 RefreshToken 확인
-    public boolean validateRefreshToken(String email, String refreshToken) {
-        String storedToken = redisTemplate.opsForValue().get(getRefreshTokenKey(email));
-        return storedToken != null && storedToken.equals(refreshToken);
+    public String fetchRefreshToken(String email) {
+        String refreshTokenKey = getRefreshTokenKey(email);
+        String refreshToken = redisTemplate.opsForValue().get(refreshTokenKey);
+
+        // 레디스에 리프레쉬 토큰이 있는지 체크
+        if (refreshToken == null) {
+            throw new RuntimeException("token not exist!");
+        }
+
+        return refreshToken;
     }
 
     // Access Token 검증
@@ -75,7 +79,7 @@ public class JwtUtil {
         return validateToken(token).getExpiration().before(new Date());
     }
 
-    private String getRefreshTokenKey(String email) {
+    public String getRefreshTokenKey(String email) {
         return "refresh_token:" + email;
     }
 
