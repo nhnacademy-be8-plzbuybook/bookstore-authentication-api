@@ -1,5 +1,6 @@
 spring:
   config:
+    import: classpath:application-secret.yml
     activate:
       on-profile: dev
   application:
@@ -31,25 +32,25 @@ spring:
     mode: HTML
     encoding: UTF-8
 
-  profiles:
-      include: secret
 #  profiles:
 #      active: dev
 
 
 server:
   port: 8082
+#eureka:
+#  client:
+#    register-with-eureka: true
+#    fetch-registry: true
+#    service-url:
+#      defaultZone: http://127.0.0.1:8761/eureka
 eureka:
   client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: http://127.0.0.1:8761/eureka
-
-
+    enabled: false
 ---
 spring:
   config:
+    import: classpath:application-secret.yml
     activate:
       on-profile: prod
   application:
@@ -74,13 +75,9 @@ spring:
 
 #  profiles:
 #      active: dev ????
-  profiles:
-    include: secret
 
 server:
   port: 8082 # 인증서버 포트
-
-
 
 eureka:
   client:
