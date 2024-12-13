@@ -4,8 +4,8 @@ package com.nhnacademy.shoppingmallservice.properties;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
+
 
 @Setter
 @Getter
@@ -18,5 +18,5 @@ public class JwtProperties {
     private String tokenPrefix;
     private String headerString;
     private String loginUrl;
-
 }
+

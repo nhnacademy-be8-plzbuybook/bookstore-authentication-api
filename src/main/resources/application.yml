@@ -3,6 +3,9 @@ spring:
     activate:
       on-profile: dev
   application:
+    name: shoppingmall-service
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
     name: authentication-dev
   datasource:
     url: jdbc:h2:mem:testdb
@@ -29,16 +32,11 @@ spring:
     mode: HTML
     encoding: UTF-8
 
+  profiles:
+      include: secret
 #  profiles:
 #      active: dev
 
-jwt:
-  secret: Ny0pm2CWIAST07ElsTAVZgCqJKJd2bE9lpKyewuOhyyKoBApt1Ny0pm2CWIAST07ElsTAVZgCqJKJd2bE9lpKyewuOhyyKoBApt1 #${JWT_SECRET}
-  expiration_time: 36000
-  refresh_expiration_time: 720000
-  token_prefix: Bearer
-  header_string: Authorization
-  login_url: /api/login
 
 server:
   port: 8082
@@ -77,17 +75,14 @@ spring:
 
 #  profiles:
 #      active: dev ????
+  profiles:
+    include: secret
 
-jwt:
-  secret: Ny0pm2CWIAST07ElsTAVZgCqJKJd2bE9lpKyewuOhyyKoBApt1Ny0pm2CWIAST07ElsTAVZgCqJKJd2bE9lpKyewuOhyyKoBApt1 #${JWT_SECRET}
-  expiration_time: 3600
-  refresh_expiration_time: 7200
-  token_prefix: Bearer
-  header_string: Authorization
-  login_url: /api/login
 
-server:
-  port: 8082
+  port: 8082 # 인증서버 포트
+
+
+
 eureka:
   client:
     register-with-eureka: true
