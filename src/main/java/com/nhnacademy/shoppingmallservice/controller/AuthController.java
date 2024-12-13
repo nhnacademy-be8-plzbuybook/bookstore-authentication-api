@@ -1,43 +1,36 @@
 package com.nhnacademy.shoppingmallservice.controller;
 
-import com.nhnacademy.shoppingmallservice.dto.LoginRequestDTO;
+import com.nhnacademy.shoppingmallservice.dto.LoginRequestDto;
 import com.nhnacademy.shoppingmallservice.dto.MemberDto;
-import com.nhnacademy.shoppingmallservice.dto.TokenDto;
-import com.nhnacademy.shoppingmallservice.service.AuthService;
+import com.nhnacademy.shoppingmallservice.service.impl.MemberAuthServiceImpl;
+import com.nhnacademy.shoppingmallservice.service.impl.CustomTokenServiceImpl;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
-@Slf4j
 @RequiredArgsConstructor
 @RestController
 public class AuthController {
 
-    private final AuthService authService;
+    private final CustomTokenServiceImpl tokenService;
+    private final MemberAuthServiceImpl memberAuthService;
 
     @GetMapping("/")
-    public String loginPage() {
-        return "login";
+    public String hi() {
+        return "hi";
     }
 
     @PostMapping("/api/login")
-    public ResponseEntity<TokenDto> login(@RequestBody LoginRequestDTO loginRequestDto) {
-        TokenDto tokenDto = authService.authenticate(loginRequestDto);
-        return ResponseEntity.ok(tokenDto);
-    }
+    public ResponseEntity<Void> login(@Valid @RequestBody LoginRequestDto loginRequest, HttpServletResponse response) {
+        MemberDto authenticatedMemberDto = memberAuthService.authenticate(loginRequest);
+        tokenService.issueJwt(response, authenticatedMemberDto);
 
-
-    @GetMapping("/oauth2/success")
-    public String oauth2SuccessPage(Model model) {
-        model.addAttribute("message", "로그인 성공");
-        return "oauth2Success";
-    }
-
-    @GetMapping("/hello")
-    public String hello() {
-        return "여기는 인증서버 관제탑 응답하라";
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

@@ -1,6 +1,7 @@
-package com.nhnacademy.shoppingmallservice.service;
+package com.nhnacademy.shoppingmallservice.service.impl;
 
 import com.nhnacademy.shoppingmallservice.dto.MemberDto;
+import com.nhnacademy.shoppingmallservice.service.CustomTokenService;
 import com.nhnacademy.shoppingmallservice.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,11 +14,17 @@ import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 @Service
-public class TokenService {
-
+public class CustomTokenServiceImpl implements CustomTokenService {
     private static final String REFRESH_TOKEN_PREFIX = "refresh_token:";
     private final RedisTemplate<String, Object> redisTemplate;
     private final JwtUtil jwtUtil;
+
+    public void issueJwt(HttpServletResponse res, MemberDto memberDto) {
+        String accessToken = jwtUtil.generateAccessToken(memberDto);
+        String refreshToken = jwtUtil.generateRefreshToken(memberDto);
+        setAccessTokenCookie(res, accessToken);
+        saveRefreshTokenOnRedis(memberDto.email(), refreshToken);
+    }
 
     // AccessToken 을 쿠키에 저장
     public void setAccessTokenCookie(HttpServletResponse response, String accessToken) {

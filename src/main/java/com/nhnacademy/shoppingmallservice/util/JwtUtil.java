@@ -30,16 +30,17 @@ public class JwtUtil {
     }
 
     public String generateAccessToken(MemberDto memberDto) {
-        return createJwt(memberDto.email(), memberDto.role(), Long.valueOf(jwtProperties.getExpirationTime()));
+        return createJwt(memberDto.email(), memberDto.role(), jwtProperties.getExpirationTime());
     }
 
     public String generateRefreshToken(MemberDto memberDto) {
-        return createJwt(memberDto.email(), null, Long.valueOf(jwtProperties.getRefreshExpirationTime()));
+        long refreshExpirationTime = jwtProperties.getRefreshExpirationTime();
+        return createJwt(memberDto.email(), memberDto.role(), refreshExpirationTime);
     }
 
     private String createJwt(String email, String role, Long expiredTime) {
         Claims claims = Jwts.claims();
-        claims.put("email", email);
+//        claims.put("email", email);
 
         if (role != null) {
             claims.put("role", role);
@@ -79,14 +80,14 @@ public class JwtUtil {
     }
 
     public Long getAccessTokenValidity() {
-        return jwtProperties.getExpirationTime().longValue();
+        return jwtProperties.getExpirationTime();
     }
 
     public Long getRefreshTokenValidity() {
-        return jwtProperties.getRefreshExpirationTime().longValue();
+        return jwtProperties.getRefreshExpirationTime();
     }
 
     public long getExpirationTime() {
-        return jwtProperties.getExpirationTime().longValue();
+        return jwtProperties.getExpirationTime();
     }
 }
