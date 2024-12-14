@@ -1,64 +1,66 @@
 package com.nhnacademy.shoppingmallservice.service.impl;
 
-import com.nhnacademy.shoppingmallservice.dto.AccessTokenReIssueRequestDto;
+import com.nhnacademy.shoppingmallservice.common.provider.JwtProvider;
 import com.nhnacademy.shoppingmallservice.dto.MemberDto;
+import com.nhnacademy.shoppingmallservice.enums.TokenType;
+import com.nhnacademy.shoppingmallservice.service.CookieService;
 import com.nhnacademy.shoppingmallservice.service.CustomTokenService;
-import com.nhnacademy.shoppingmallservice.util.JwtUtil;
-import jakarta.servlet.http.Cookie;
+import com.nhnacademy.shoppingmallservice.service.RedisService;
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-
-import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 @Service
 public class CustomTokenServiceImpl implements CustomTokenService {
-    private static final String REFRESH_TOKEN_PREFIX = "refresh_token:";
-    private final RedisTemplate<String, Object> redisTemplate;
-    private final JwtUtil jwtUtil;
+    private final JwtProvider jwtProvider;
+    private final CookieService cookieService;
+    private final RedisService redisService;
 
     public void issueJwt(HttpServletResponse res, MemberDto memberDto) {
-        String accessToken = jwtUtil.generateAccessToken(memberDto);
-        String refreshToken = jwtUtil.generateRefreshToken(memberDto);
-        setAccessTokenCookie(res, accessToken);
-        saveRefreshTokenOnRedis(memberDto.email(), refreshToken);
-    }
-
-    // AccessToken 을 쿠키에 저장
-    public void setAccessTokenCookie(HttpServletResponse response, String accessToken) {
-        Cookie cookie = new Cookie("accessToken", accessToken);
-
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge((int) (jwtUtil.getAccessTokenValidity() / 1000));
-
-        response.addCookie(cookie);
-    }
-
-    // Refresh Token 을 Redis 에 저장
-    public void saveRefreshTokenOnRedis(String email, String refreshToken) {
-        String refreshTokenKey = REFRESH_TOKEN_PREFIX + email;
-        redisTemplate.opsForValue().set(
-                refreshTokenKey,
-                refreshToken,
-                jwtUtil.getRefreshTokenValidity(),
-                TimeUnit.MILLISECONDS
-        );
+        String accessToken = jwtProvider.generateAccessToken(memberDto);
+        String refreshToken = jwtProvider.generateRefreshToken(memberDto);
+        saveTokenOnCookie(res, TokenType.ACCESS, accessToken);
+        redisService.saveValueOnRedis(jwtProvider.getRefreshTokenKey(memberDto.email()), refreshToken, jwtProvider.getRefreshExpirationTime());
     }
 
     // Refresh Token 검증 및 Access Token 재발급
-    public String reissueAccessToken(AccessTokenReIssueRequestDto reIssueRequest) {
-        String email = reIssueRequest.email();
-        String refreshToken = jwtUtil.fetchRefreshToken(email);
-
-        // 리프레쉬 토큰이 만료됐는지 확인
-        if (jwtUtil.isTokenExpired(refreshToken)) {
-            throw new RuntimeException("token expired!"); // TODO: 커스텀 예외처리 구현 필요
+    public String reissueAccessToken(String email) {
+        if (email.isBlank()) {
+            throw new IllegalArgumentException("parameter cant not be blank");
         }
+        String refreshTokenKey = jwtProvider.getRefreshTokenKey(email);
+        String refreshToken = (String) redisService.getValueFromRedis(refreshTokenKey);
 
-        MemberDto memberDto = new MemberDto(email, null, reIssueRequest.role());
-        return jwtUtil.generateAccessToken(memberDto);
+        // 리프레쉬 토큰 검증
+        jwtProvider.validateToken(refreshToken);
+
+        Claims claims = jwtProvider.parseToken(refreshToken);
+        String role = (String) claims.get("role");
+        MemberDto memberDto = new MemberDto(email, null, role);
+        return jwtProvider.generateAccessToken(memberDto);
     }
+
+    @Override
+    public void saveTokenOnCookie(HttpServletResponse response, TokenType type, String token) {
+        jwtProvider.validateToken(token);
+
+        String key = (type == TokenType.ACCESS) ? "accessToken" : "refreshToken";
+        long expiry = (type == TokenType.ACCESS) ? jwtProvider.getAccessExpirationTime() : jwtProvider.getRefreshExpirationTime();
+        cookieService.saveOnCookie(response, key, token, (int) expiry / 1000);
+    }
+
+//    public void checkUserAddress(String originAddress, HttpServletRequest request) {
+//        String userAddress = getRemoteAddress(request);
+//
+//        if (userAddress.equals(originAddress)) {
+//            //TODO: 예외처리 or 로그인 페이지 요청
+//        }
+//    }
+//
+//    public String getRemoteAddress(HttpServletRequest request) {
+//        return (request.getHeader("X-FORWARDED-FOR") != null) ? request.getHeader("X-FORWARDED-FOR") : request.getRemoteAddr();
+//    }
 }
