@@ -1,8 +1,11 @@
 package com.nhnacademy.shoppingmallservice.dto;
 
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotNull;
+
 public record MemberDto(
-        String email,
-        String password,
-        String role
+        @NotNull String email,
+        @Nullable String password,
+        @NotNull String role
 ) {
 }

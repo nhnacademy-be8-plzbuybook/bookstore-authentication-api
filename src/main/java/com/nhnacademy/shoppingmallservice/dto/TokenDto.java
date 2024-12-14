@@ -10,3 +10,4 @@ public record TokenDto(
         @JsonProperty("expires_in") String expiresIn
 ) {
 }
+//액세스, 리프레쉬 두개만 살릴 수도

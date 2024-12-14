@@ -2,7 +2,7 @@ package com.nhnacademy.shoppingmallservice.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
 
-public record AccessTokenReIssueRequestDto  (@JsonProperty("email") String email,
-                                             @JsonProperty("role") String role) {
+public record AccessTokenReIssueRequestDto  (@NotBlank @JsonProperty("email") String email) {
 }

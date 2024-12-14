@@ -1,4 +1,4 @@
-package com.nhnacademy.shoppingmallservice.config;
+package com.nhnacademy.shoppingmallservice.common.config;
 
 
 import lombok.RequiredArgsConstructor;
