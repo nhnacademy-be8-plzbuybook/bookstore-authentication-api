@@ -1,6 +1,6 @@
 spring:
   config:
-    import: classpath:application-secret.yml
+    import: classpath:application.yml
     activate:
       on-profile: dev
   application:
@@ -37,7 +37,7 @@ spring:
 
 
 server:
-  port: 8082
+  port: 8083
 #eureka:
 #  client:
 #    register-with-eureka: true
@@ -50,7 +50,7 @@ eureka:
 ---
 spring:
   config:
-    import: classpath:application-secret.yml
+    import: classpath:application.yml
     activate:
       on-profile: prod
   application:
@@ -84,4 +84,4 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://127.0.0.1:8761/eureka
+      defaultZone: http://eureka:8761/eureka
