@@ -1,5 +1,6 @@
 package com.nhnacademy.shoppingmallservice.service.impl;
 
+import com.nhnacademy.shoppingmallservice.common.exception.NotFoundException;
 import com.nhnacademy.shoppingmallservice.dto.LoginRequestDto;
 import com.nhnacademy.shoppingmallservice.dto.MemberDto;
 import com.nhnacademy.shoppingmallservice.service.MemberAuthService;
@@ -9,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @RequiredArgsConstructor
 @Service
 public class MemberAuthServiceImpl implements MemberAuthService {
@@ -17,24 +20,29 @@ public class MemberAuthServiceImpl implements MemberAuthService {
 
     // 서점서버에 회원정보 요청
     @Override
-    public MemberDto getMemberByEmail(String email) {
+    public Optional<MemberDto> getMemberByEmail(String email) {
         try {
-            return memberClient.findMemberByEmail(email);
+            MemberDto memberDto = memberClient.findMemberByEmail(email);
+            return Optional.of(memberDto);
         } catch (FeignException.NotFound e) {
-            return null;
+            return Optional.empty();
         }
     }
 
     // 회원인증(로그인)
     @Override
     public MemberDto authenticate(LoginRequestDto loginRequest) {
-        String email = loginRequest.email();
-        MemberDto memberDto = getMemberByEmail(email);
+        Optional<MemberDto> optionalMemberDto = getMemberByEmail(loginRequest.email());
 
-        if (!passwordEncoder.matches(loginRequest.password(), memberDto.password())) {
-            throw new IllegalArgumentException("비밀번호가 올바르지 않습니다.");
+        if (optionalMemberDto.isPresent()) {
+            MemberDto memberDto = optionalMemberDto.get();
+
+            if (!passwordEncoder.matches(loginRequest.password(), memberDto.password())) {
+                throw new IllegalArgumentException("wrong password");
+            }
+            return memberDto;
         }
-        return memberDto;
+        throw new NotFoundException("member not found!");
     }
 
 }

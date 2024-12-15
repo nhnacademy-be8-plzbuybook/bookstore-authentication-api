@@ -2,6 +2,7 @@ package com.nhnacademy.shoppingmallservice.controller;
 
 import com.nhnacademy.shoppingmallservice.dto.MemberDto;
 import com.nhnacademy.shoppingmallservice.dto.TokenDto;
+import com.nhnacademy.shoppingmallservice.service.MemberAuthService;
 import com.nhnacademy.shoppingmallservice.service.impl.CustomTokenServiceImpl;
 import com.nhnacademy.shoppingmallservice.service.impl.PaycoOauthServiceImpl;
 import com.nhnacademy.shoppingmallservice.webClient.FrontClient;
@@ -14,11 +15,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @Slf4j
 @RequiredArgsConstructor
 @RestController
 public class OauthController {
-
+    private final MemberAuthService memberAuthService;
     private final PaycoOauthServiceImpl paycoOauthService;
     private final CustomTokenServiceImpl tokenService;
 
@@ -39,13 +42,15 @@ public class OauthController {
         TokenDto tokenDto = paycoOauthService.getTokens(code);
         String email = paycoOauthService.getOAuthUserEmail(tokenDto.accessToken());
 
-        MemberDto memberDto = new MemberDto(email, "pwd", "ROLE_MEMBER");
-//        MemberDto memberDto = memberAuthService.getMemberByEmail(email);
+//        MemberDto memberDto = new MemberDto(email, "pwd", "ROLE_MEMBER");
+        Optional<MemberDto> optionalMemberDto = memberAuthService.getMemberByEmail(email);
 
-        if (memberDto != null) {
+        if (optionalMemberDto.isPresent()) {
+            MemberDto memberDto = optionalMemberDto.get();
             tokenService.issueJwt(res, memberDto);
             return ResponseEntity.status(HttpStatus.OK).build();
         }
+
         return ResponseEntity.status(HttpStatus.FOUND).body("/signup?email=" + email);
     }
 }
