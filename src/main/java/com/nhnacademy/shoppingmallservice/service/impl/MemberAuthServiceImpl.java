@@ -1,6 +1,7 @@
 package com.nhnacademy.shoppingmallservice.service.impl;
 
 import com.nhnacademy.shoppingmallservice.common.exception.NotFoundException;
+import com.nhnacademy.shoppingmallservice.common.exception.UnAuthorizedException;
 import com.nhnacademy.shoppingmallservice.dto.LoginRequestDto;
 import com.nhnacademy.shoppingmallservice.dto.MemberDto;
 import com.nhnacademy.shoppingmallservice.service.MemberAuthService;
@@ -38,7 +39,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
             MemberDto memberDto = optionalMemberDto.get();
 
             if (!passwordEncoder.matches(loginRequest.password(), memberDto.password())) {
-                throw new IllegalArgumentException("wrong password");
+                throw new UnAuthorizedException("wrong password");
             }
             return memberDto;
         }
