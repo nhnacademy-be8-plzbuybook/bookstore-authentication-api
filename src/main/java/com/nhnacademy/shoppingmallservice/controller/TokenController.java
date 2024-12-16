@@ -1,19 +1,14 @@
 package com.nhnacademy.shoppingmallservice.controller;
 
-import com.nhnacademy.shoppingmallservice.common.provider.JwtProvider;
 import com.nhnacademy.shoppingmallservice.dto.AccessTokenReIssueRequestDto;
 import com.nhnacademy.shoppingmallservice.enums.TokenType;
-import com.nhnacademy.shoppingmallservice.service.CookieService;
 import com.nhnacademy.shoppingmallservice.service.impl.CustomTokenServiceImpl;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Base64;
 
 @RequiredArgsConstructor
 @RestController

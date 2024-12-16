@@ -1,13 +1,17 @@
 package com.nhnacademy.shoppingmallservice.controller;
 
 import com.nhnacademy.shoppingmallservice.common.exception.NotFoundException;
+import com.nhnacademy.shoppingmallservice.common.exception.UnAuthorizedException;
 import com.nhnacademy.shoppingmallservice.dto.LoginRequestDto;
 import com.nhnacademy.shoppingmallservice.dto.MemberDto;
+import com.nhnacademy.shoppingmallservice.service.CustomTokenService;
+import com.nhnacademy.shoppingmallservice.service.MemberAuthService;
 import com.nhnacademy.shoppingmallservice.service.impl.MemberAuthServiceImpl;
 import com.nhnacademy.shoppingmallservice.service.impl.CustomTokenServiceImpl;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,8 +25,8 @@ import java.util.Optional;
 @RestController
 public class AuthController {
 
-    private final CustomTokenServiceImpl tokenService;
-    private final MemberAuthServiceImpl memberAuthService;
+    private final CustomTokenService tokenService;
+    private final MemberAuthService memberAuthService;
 
     @GetMapping("/")
     public String hi() {
@@ -36,7 +40,9 @@ public class AuthController {
             MemberDto authenticatedMemberDto = memberAuthService.authenticate(loginRequest);
             tokenService.issueJwt(response, authenticatedMemberDto);
         } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 게이트웨이에서 회원가입 페이지로 이동시키도록
+        } catch (UnAuthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         return ResponseEntity.status(HttpStatus.OK).build();
     }
