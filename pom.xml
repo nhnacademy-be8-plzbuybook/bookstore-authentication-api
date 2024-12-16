@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.nhnacademy</groupId>
-    <artifactId>shoppingmall-service</artifactId>
+    <artifactId>bookstore-auth</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>shoppingmall-service</name>
-    <description>shoppingmall-service</description>
+    <name>bookstore-auth</name>
+    <description>bookstore-auth</description>
 
     <properties>
         <java.version>21</java.version>
