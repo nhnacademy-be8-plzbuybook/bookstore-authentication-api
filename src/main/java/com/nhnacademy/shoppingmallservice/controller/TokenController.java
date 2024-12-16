@@ -1,11 +1,14 @@
 package com.nhnacademy.shoppingmallservice.controller;
 
 import com.nhnacademy.shoppingmallservice.dto.AccessTokenReIssueRequestDto;
+import com.nhnacademy.shoppingmallservice.dto.AccessTokenReIssueResponseDto;
 import com.nhnacademy.shoppingmallservice.enums.TokenType;
 import com.nhnacademy.shoppingmallservice.service.impl.CustomTokenServiceImpl;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,12 +19,15 @@ public class TokenController {
     private final CustomTokenServiceImpl tokenService;
 
     @PostMapping("/api/auth/access-token/re-issue")
-    public void reIssueAccessToken(@Valid @RequestBody AccessTokenReIssueRequestDto reIssueRequest,
-                                   HttpServletResponse response) {
+    public ResponseEntity<AccessTokenReIssueResponseDto> reIssueAccessToken(@Valid @RequestBody AccessTokenReIssueRequestDto reIssueRequest,
+                                                                            HttpServletResponse response) {
 
         String email = reIssueRequest.email();
         String reIssuedAccessToken = tokenService.reissueAccessToken(email);
         tokenService.saveTokenOnCookie(response, TokenType.ACCESS, reIssuedAccessToken);
+
+        AccessTokenReIssueResponseDto body = new AccessTokenReIssueResponseDto(reIssuedAccessToken);
+        return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 
 
