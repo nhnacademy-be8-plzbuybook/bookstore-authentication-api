@@ -17,25 +17,9 @@
     <properties>
         <java.version>21</java.version>
         <spring-cloud.version>2023.0.4</spring-cloud.version>
-        <querydsl.version>5.1.0</querydsl.version>
     </properties>
 
     <dependencies>
-        <!-- Querydsl -->
-        <dependency>
-            <groupId>com.querydsl</groupId>
-            <artifactId>querydsl-jpa</artifactId>
-            <version>${querydsl.version}</version>
-            <classifier>jakarta</classifier>
-        </dependency>
-        <dependency>
-            <groupId>com.querydsl</groupId>
-            <artifactId>querydsl-apt</artifactId>
-            <version>${querydsl.version}</version>
-            <classifier>jakarta</classifier>
-            <scope>provided</scope>
-        </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
