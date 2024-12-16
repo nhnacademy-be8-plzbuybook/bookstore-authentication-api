@@ -1,5 +1,7 @@
 package com.nhnacademy.shoppingmallservice.controller;
 
+import com.nhnacademy.shoppingmallservice.common.exception.NotFoundException;
+import com.nhnacademy.shoppingmallservice.common.exception.NotRegisteredException;
 import com.nhnacademy.shoppingmallservice.dto.MemberDto;
 import com.nhnacademy.shoppingmallservice.dto.TokenDto;
 import com.nhnacademy.shoppingmallservice.service.MemberAuthService;
@@ -41,7 +43,6 @@ public class OauthController {
     public ResponseEntity<?> oauthLogin(@RequestParam("code") String code, HttpServletResponse res) {
         TokenDto tokenDto = paycoOauthService.getTokens(code);
         String email = paycoOauthService.getOAuthUserEmail(tokenDto.accessToken());
-
 //        MemberDto memberDto = new MemberDto(email, "pwd", "ROLE_MEMBER");
         Optional<MemberDto> optionalMemberDto = memberAuthService.getMemberByEmail(email);
 
@@ -51,6 +52,7 @@ public class OauthController {
             return ResponseEntity.status(HttpStatus.OK).build();
         }
 
-        return ResponseEntity.status(HttpStatus.FOUND).body("/signup?email=" + email);
+        throw new NotRegisteredException(email + "is not registered member");
+//        return ResponseEntity.status(HttpStatus.FOUND).body("/signup?email=" + email);
     }
 }

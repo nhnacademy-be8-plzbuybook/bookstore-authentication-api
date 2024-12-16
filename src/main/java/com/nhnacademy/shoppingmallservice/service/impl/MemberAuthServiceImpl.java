@@ -38,12 +38,11 @@ public class MemberAuthServiceImpl implements MemberAuthService {
         if (optionalMemberDto.isPresent()) {
             MemberDto memberDto = optionalMemberDto.get();
 
-            if (!passwordEncoder.matches(loginRequest.password(), memberDto.password())) {
-                throw new UnAuthorizedException("wrong password");
+            if (passwordEncoder.matches(loginRequest.password(), memberDto.password())) {
+                return memberDto;
             }
-            return memberDto;
         }
-        throw new NotFoundException("member not found!");
+        throw new UnAuthorizedException("wrong Id or Password");
     }
 
 }

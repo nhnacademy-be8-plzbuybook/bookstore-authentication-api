@@ -36,16 +36,8 @@ public class AuthController {
     @PostMapping("/api/login")
     public ResponseEntity<Void> login(@Valid @RequestBody LoginRequestDto loginRequest, HttpServletResponse response) {
 //        Optional<MemberDto> optionalMemberDto = memberAuthService.getMemberByEmail(loginRequest.email())
-        try {
-            MemberDto authenticatedMemberDto = memberAuthService.authenticate(loginRequest);
-            tokenService.issueJwt(response, authenticatedMemberDto);
-        } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 게이트웨이에서 회원가입 페이지로 이동시키도록
-        } catch (UnAuthorizedException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        MemberDto authenticatedMemberDto = memberAuthService.authenticate(loginRequest);
+        tokenService.issueJwt(response, authenticatedMemberDto);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
-
-
 }
