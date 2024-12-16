@@ -1,6 +1,7 @@
 package com.nhnacademy.shoppingmallservice.service;
 
 import com.nhnacademy.shoppingmallservice.common.exception.NotFoundException;
+import com.nhnacademy.shoppingmallservice.common.exception.UnAuthorizedException;
 import com.nhnacademy.shoppingmallservice.dto.LoginRequestDto;
 import com.nhnacademy.shoppingmallservice.dto.MemberDto;
 import com.nhnacademy.shoppingmallservice.service.impl.MemberAuthServiceImpl;
@@ -114,7 +115,7 @@ class MemberAuthServiceTest {
         when(passwordEncoder.matches(rawPwd, encPwd)).thenReturn(false);
 
         //when
-        Exception e = assertThrows(IllegalArgumentException.class, () -> memberAuthService.authenticate(mockLoginRequestDto));
+        Exception e = assertThrows(UnAuthorizedException.class, () -> memberAuthService.authenticate(mockLoginRequestDto));
 
         //then
         assertEquals("wrong password", e.getMessage());
