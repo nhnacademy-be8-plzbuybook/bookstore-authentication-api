@@ -1,6 +1,6 @@
 spring:
   config:
-    import: classpath:application.yml
+    import: classpath:application-secret.yml
     activate:
       on-profile: dev
   application:
@@ -50,7 +50,7 @@ eureka:
 ---
 spring:
   config:
-    import: classpath:application.yml
+    import: classpath:application-secret.yml
     activate:
       on-profile: prod
   application:
