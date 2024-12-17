@@ -3,7 +3,7 @@ package com.nhnacademy.shoppingmallservice.controller;
 import com.nhnacademy.shoppingmallservice.dto.AccessTokenReIssueRequestDto;
 import com.nhnacademy.shoppingmallservice.dto.AccessTokenReIssueResponseDto;
 import com.nhnacademy.shoppingmallservice.enums.TokenType;
-import com.nhnacademy.shoppingmallservice.service.impl.CustomTokenServiceImpl;
+import com.nhnacademy.shoppingmallservice.service.CustomTokenService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 public class TokenController {
-    private final CustomTokenServiceImpl tokenService;
+    private final CustomTokenService tokenService;
 
     @PostMapping("/api/auth/access-token/re-issue")
     public ResponseEntity<AccessTokenReIssueResponseDto> reIssueAccessToken(@Valid @RequestBody AccessTokenReIssueRequestDto reIssueRequest,

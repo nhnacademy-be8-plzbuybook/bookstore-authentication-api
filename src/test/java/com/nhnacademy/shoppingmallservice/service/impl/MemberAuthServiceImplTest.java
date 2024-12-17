@@ -1,10 +1,9 @@
-package com.nhnacademy.shoppingmallservice.service;
+package com.nhnacademy.shoppingmallservice.service.impl;
 
 import com.nhnacademy.shoppingmallservice.common.exception.NotFoundException;
 import com.nhnacademy.shoppingmallservice.common.exception.UnAuthorizedException;
 import com.nhnacademy.shoppingmallservice.dto.LoginRequestDto;
 import com.nhnacademy.shoppingmallservice.dto.MemberDto;
-import com.nhnacademy.shoppingmallservice.service.impl.MemberAuthServiceImpl;
 import com.nhnacademy.shoppingmallservice.webClient.MemberClient;
 import feign.FeignException;
 import org.junit.jupiter.api.Test;
@@ -17,10 +16,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class MemberAuthServiceTest {
+class MemberAuthServiceImplTest {
     @Mock
     private MemberClient memberClient;
     @Mock
@@ -91,10 +92,10 @@ class MemberAuthServiceTest {
         when(memberClient.findMemberByEmail(email)).thenThrow(FeignException.NotFound.class);
 
         //when
-        Exception e = assertThrows(NotFoundException.class, () -> memberAuthService.authenticate(mockLoginRequestDto));
+        Exception e = assertThrows(UnAuthorizedException.class, () -> memberAuthService.authenticate(mockLoginRequestDto));
 
         //then
-        assertEquals("member not found!", e.getMessage());
+        assertEquals("wrong Id or Password", e.getMessage());
         verify(memberClient).findMemberByEmail(email);
         verify(mockLoginRequestDto, never()).password();
         verify(mockMemberDto, never()).password();
@@ -118,7 +119,7 @@ class MemberAuthServiceTest {
         Exception e = assertThrows(UnAuthorizedException.class, () -> memberAuthService.authenticate(mockLoginRequestDto));
 
         //then
-        assertEquals("wrong password", e.getMessage());
+        assertEquals("wrong Id or Password", e.getMessage());
         verify(memberClient).findMemberByEmail(email);
         verify(mockLoginRequestDto).password();
         verify(passwordEncoder).matches(rawPwd, encPwd);

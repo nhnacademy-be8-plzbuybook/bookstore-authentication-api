@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class RedisServiceTest {
+class RedisServiceImplTest {
     @Mock
     private RedisTemplate<String, Object> mockRedisTemplate;
     @InjectMocks
