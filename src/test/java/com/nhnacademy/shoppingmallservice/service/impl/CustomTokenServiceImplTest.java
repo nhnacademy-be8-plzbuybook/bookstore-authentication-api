@@ -1,10 +1,11 @@
-package com.nhnacademy.shoppingmallservice.service;
+package com.nhnacademy.shoppingmallservice.service.impl;
 
 import com.nhnacademy.shoppingmallservice.common.exception.InvalidTokenException;
 import com.nhnacademy.shoppingmallservice.common.provider.JwtProvider;
 import com.nhnacademy.shoppingmallservice.dto.MemberDto;
 import com.nhnacademy.shoppingmallservice.enums.TokenType;
-import com.nhnacademy.shoppingmallservice.service.impl.CustomTokenServiceImpl;
+import com.nhnacademy.shoppingmallservice.service.CookieService;
+import com.nhnacademy.shoppingmallservice.service.RedisService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Test;
@@ -15,11 +16,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class CustomTokenServiceTest {
+class CustomTokenServiceImplTest {
     @Mock
     private JwtProvider jwtProvider;
     @Mock
@@ -154,5 +157,4 @@ class CustomTokenServiceTest {
         int calculatedExpiry = (int) expiry / 1000;
         verify(cookieService).saveOnCookie(response, "refreshToken", refreshToken, calculatedExpiry);
     }
-
 }

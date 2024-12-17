@@ -3,10 +3,8 @@ package com.nhnacademy.shoppingmallservice.common.handler;
 import com.nhnacademy.shoppingmallservice.common.exception.NotFoundException;
 import com.nhnacademy.shoppingmallservice.common.exception.NotRegisteredException;
 import com.nhnacademy.shoppingmallservice.common.exception.UnAuthorizedException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ProblemDetail;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -50,6 +48,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ProblemDetail body = createProblemDetail(ex, status, detail, null, null, request);
         body.setType(type);
 
+        return ResponseEntity.of(body).build();
+    }
+
+
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        String detail = ex.getMessage();
+        status = HttpStatus.BAD_REQUEST;
+        ProblemDetail body = createProblemDetail(ex, status, detail, null, null, request);
         return ResponseEntity.of(body).build();
     }
 
