@@ -1,6 +1,5 @@
 package com.nhnacademy.shoppingmallservice.service.impl;
 
-import com.nhnacademy.shoppingmallservice.common.exception.NotFoundException;
 import com.nhnacademy.shoppingmallservice.common.exception.UnAuthorizedException;
 import com.nhnacademy.shoppingmallservice.dto.LoginRequestDto;
 import com.nhnacademy.shoppingmallservice.dto.MemberDto;
@@ -11,21 +10,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class MemberAuthServiceImplTest {
     @Mock
     private MemberClient memberClient;
-    @Mock
-    private BCryptPasswordEncoder passwordEncoder;
     @InjectMocks
     private MemberAuthServiceImpl memberAuthService;
 
@@ -61,68 +55,50 @@ class MemberAuthServiceImplTest {
     @Test
     void authenticate_success() {
         //given
-        String email = "test@email.com";
-        String rawPwd = "pwd";
-        String encPwd = "pwd";
-        MemberDto memberDto = new MemberDto(email, encPwd, "role");
-        LoginRequestDto mockLoginRequestDto = mock(LoginRequestDto.class);
-        when(mockLoginRequestDto.email()).thenReturn(email);
-        when(memberClient.findMemberByEmail(email)).thenReturn(memberDto);
-        when(mockLoginRequestDto.password()).thenReturn(rawPwd);
-        when(passwordEncoder.matches(rawPwd, encPwd)).thenReturn(true);
+        LoginRequestDto loginRequestDto = new LoginRequestDto("test@email.com", "test");
+        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER");
+
+        when(memberClient.findMemberByEmail("test@email.com")).thenReturn(memberDto);
 
         //when
-        MemberDto result = memberAuthService.authenticate(mockLoginRequestDto);
+        MemberDto result = memberAuthService.authenticate(loginRequestDto);
 
         //then
         assertEquals(memberDto, result);
-        verify(memberClient).findMemberByEmail(email);
-        verify(mockLoginRequestDto).password();
-        verify(passwordEncoder).matches(rawPwd, encPwd);
+        verify(memberClient).findMemberByEmail("test@email.com");
     }
 
     @Test
     void authenticate_member_not_found() {
         //given
         String email = "test@email.com";
-        MemberDto mockMemberDto = mock(MemberDto.class);
-        LoginRequestDto mockLoginRequestDto = mock(LoginRequestDto.class);
+        LoginRequestDto loginRequestDto = new LoginRequestDto("test@email.com", "test");
 
-        when(mockLoginRequestDto.email()).thenReturn(email);
         when(memberClient.findMemberByEmail(email)).thenThrow(FeignException.NotFound.class);
 
         //when
-        Exception e = assertThrows(UnAuthorizedException.class, () -> memberAuthService.authenticate(mockLoginRequestDto));
+        Exception e = assertThrows(UnAuthorizedException.class, () -> memberAuthService.authenticate(loginRequestDto));
 
         //then
         assertEquals("wrong Id or Password", e.getMessage());
         verify(memberClient).findMemberByEmail(email);
-        verify(mockLoginRequestDto, never()).password();
-        verify(mockMemberDto, never()).password();
-        verify(passwordEncoder, never()).matches(anyString(), anyString());
     }
 
     @Test
     void authenticate_fail() {
         //given
-        String email = "test@email.com";
-        String rawPwd = "rawPwd";
-        String encPwd = "encPwd";
-        MemberDto memberDto = new MemberDto(email, encPwd, "role");
-        LoginRequestDto mockLoginRequestDto = mock(LoginRequestDto.class);
-        when(mockLoginRequestDto.email()).thenReturn(email);
-        when(memberClient.findMemberByEmail(email)).thenReturn(memberDto);
-        when(mockLoginRequestDto.password()).thenReturn(rawPwd);
-        when(passwordEncoder.matches(rawPwd, encPwd)).thenReturn(false);
+        LoginRequestDto loginRequestDto = spy(new LoginRequestDto("test@email.com", "wrongPwd"));
+        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER");
+
+        when(memberClient.findMemberByEmail("test@email.com")).thenReturn(memberDto);
 
         //when
-        Exception e = assertThrows(UnAuthorizedException.class, () -> memberAuthService.authenticate(mockLoginRequestDto));
+        Exception e = assertThrows(UnAuthorizedException.class, () -> memberAuthService.authenticate(loginRequestDto));
 
         //then
         assertEquals("wrong Id or Password", e.getMessage());
-        verify(memberClient).findMemberByEmail(email);
-        verify(mockLoginRequestDto).password();
-        verify(passwordEncoder).matches(rawPwd, encPwd);
+        verify(memberClient).findMemberByEmail(loginRequestDto.email());
+        verify(loginRequestDto).password();
     }
 
 }
