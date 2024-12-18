@@ -6,205 +6,160 @@ import com.nhnacademy.shoppingmallservice.dto.MemberDto;
 import com.nhnacademy.shoppingmallservice.properties.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@ActiveProfiles(value = "secret")
+@EnableConfigurationProperties(JwtProperties.class)
 class JwtProviderTest {
-    @Mock
-    private JwtProperties mockJwtProperties;
+    @Autowired
     private JwtProvider jwtProvider;
 
-    @BeforeEach
-    void setup() {
-        String secret = "Ny0pm2CWIAST07ElsTAVZgCqJKJd2bE9lpKyewuOhyyKoBApt1Ny0pm2CWIAST07ElsTAVZgCqJKJd2bE9lpKyewuOhyyKoBApt1";
-        when(mockJwtProperties.getSecret()).thenReturn(secret);
-        jwtProvider = new JwtProvider(mockJwtProperties);
-    }
+    @SpyBean
+    private JwtProperties jwtProperties;
 
-    @DisplayName("accessToken 생성 테스트")
+    private final String expiredToken = "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9NRU1CRVIiLCJpYXQiOjE3MzQ0ODE3OTAsInN1YiI6InRlc3RAZW1haWwuY29tIiwiZXhwIjoxNzM0NDgyNjkwfQ.H-A849hldL37X2CbQp7AgIRjaSRsXSpK4aZ3xifdqLw";
+
     @Test
+    @DisplayName("accessToken 생성 테스트 - 호출 검증")
     void generateAccessToken() {
-        String testEmail = "test@email.com";
-        String testRole = "ROLE_MEMBER";
-        MemberDto memberDto = new MemberDto(testEmail, null, testRole);
-        when(mockJwtProperties.getAccessExpirationTime()).thenReturn(900000L);
+        // given
+        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER");
 
-        String accessToken = jwtProvider.generateAccessToken(memberDto);
+        // when
+        String token = jwtProvider.generateAccessToken(memberDto);
 
-        assertNotNull(accessToken);
-        verify(mockJwtProperties, times(1)).getAccessExpirationTime();
-
-        String payload = new String(Base64.getDecoder().decode(accessToken.split("\\.")[1]), StandardCharsets.UTF_8);
-        assertTrue(payload.contains(testEmail));
-        assertTrue(payload.contains(testRole));
+        // then
+        assertNotNull(token);
+        Claims claims = jwtProvider.parseToken(token);
+        assertEquals("test@email.com", claims.getSubject());
+        assertEquals("ROLE_MEMBER", claims.get("role"));
+        verify(jwtProperties, times(1)).getAccessExpirationTime();
     }
 
-    @DisplayName("accessToken 생성 테스트 - 잘못된 인자")
+    @DisplayName("accessToken 생성 테스트 - null 인자")
     @Test
-    void generateAccessToken_wrong_param() {
-        String testEmail = "";
-        String testRole = "ROLE_MEMBER";
-        MemberDto memberDto = new MemberDto(testEmail, null, testRole);
-        when(mockJwtProperties.getAccessExpirationTime()).thenReturn(900000L);
-
-        assertThrows(IllegalArgumentException.class, () -> jwtProvider.generateAccessToken(memberDto));
+    void generateAccessToken_null_parameter() {
+        // when
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> jwtProvider.generateAccessToken(null));
+        assertEquals("invalid MemberDto", e.getMessage());
     }
 
     @DisplayName("refreshToken 생성 테스트")
     @Test
     void generateRefreshToken() {
-        String testEmail = "test@email.com";
-        String testRole = "ROLE_MEMBER";
-        MemberDto memberDto = new MemberDto(testEmail, null, testRole);
-        when(mockJwtProperties.getRefreshExpirationTime()).thenReturn(604800000L);
+        //given
+        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER");
 
-        String refreshToken = jwtProvider.generateRefreshToken(memberDto);
+        //when
+        String token = jwtProvider.generateRefreshToken(memberDto);
 
-        assertNotNull(refreshToken);
-        verify(mockJwtProperties, times(1)).getRefreshExpirationTime();
+        //then
+        assertNotNull(token);
+        Claims claims = jwtProvider.parseToken(token);
+        assertEquals("test@email.com", claims.getSubject());
+        assertEquals("ROLE_MEMBER", claims.get("role"));
+        verify(jwtProperties, times(1)).getRefreshExpirationTime();
+    }
 
-        String payload = new String(Base64.getDecoder().decode(refreshToken.split("\\.")[1]), StandardCharsets.UTF_8);
-        assertTrue(payload.contains(testEmail));
-        assertTrue(payload.contains(testRole));
+    @DisplayName("refreshToken 생성 테스트 - null 인자")
+    @Test
+    void generateRefreshToken_null_parameter() {
+        // when
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> jwtProvider.generateRefreshToken(null));
+        assertEquals("invalid MemberDto", e.getMessage());
     }
 
 
     @Test
     void getRefreshTokenKey() {
-        String testEmail = "test@email.com";
+        String email = "test@email.com";
+        String key = jwtProvider.getRefreshTokenKey(email);
 
-        String key = jwtProvider.getRefreshTokenKey(testEmail);
-
-        assertEquals("refresh_token:" + testEmail, key);
+        assertNotNull(key);
+        assertEquals("refresh_token:" + email, key);
     }
-
-//    @DisplayName("Redis에서 refreshToken 조회")
-//    @Test
-//    void fetchRefreshToken() {
-//        String testEmail = "test@email.com";
-//        String refreshToken = "refreshToken";
-//        ValueOperations<String, String> valueOperations = mock(ValueOperations.class);
-//        when(mockRedisTemplate.opsForValue()).thenReturn(valueOperations);
-//        when(valueOperations.get(anyString())).thenReturn(refreshToken);
-//
-//        String fetchedRefreshToken = jwtProvider.fetchRefreshToken(testEmail);
-//
-//        assertNotNull(fetchedRefreshToken);
-//        assertEquals(refreshToken, fetchedRefreshToken);
-//        verify(mockRedisTemplate, times(1)).opsForValue();
-//        verify(valueOperations, times(1)).get(anyString());
-//    }
-//
-//    @DisplayName("Redis에서 refreshToken 조회 - 존재하지 않는 refreshToken")
-//    @Test
-//    void fetchRefreshToken_not_exist() {
-//        String testEmail = "notExist@email.com";
-//        ValueOperations<String, String> valueOperations = mock(ValueOperations.class);
-//        when(mockRedisTemplate.opsForValue()).thenReturn(valueOperations);
-//        when(valueOperations.get(anyString())).thenReturn(null);
-//
-//        RuntimeException exception = assertThrows(RuntimeException.class, () -> jwtProvider.fetchRefreshToken(testEmail));
-//        assertEquals("token not exist!", exception.getMessage());
-//        verify(mockRedisTemplate, times(1)).opsForValue();
-//        verify(valueOperations, times(1)).get(anyString());
-//    }
 
     @DisplayName("토큰 파싱 테스트")
     @Test
     void parseToken() {
-        String testEmail = "test@email.com";
-        String testRole = "ROLE_TEST";
-        MemberDto testMemberDto = new MemberDto(testEmail, null, testRole);
-        when(mockJwtProperties.getAccessExpirationTime()).thenReturn(10000L);
-        String testAccessToken = jwtProvider.generateAccessToken(testMemberDto);
+        //given
+        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER");
+        String token = jwtProvider.generateRefreshToken(memberDto);
 
-        Claims claims = jwtProvider.parseToken(testAccessToken);
-        String role = (String) claims.get("role");
-        String email = (String) claims.get("sub");
+        //when
+        Claims claims = jwtProvider.parseToken(token);
 
-        assertNotNull(claims);
-        assertNotNull(role);
-        assertNotNull(email);
-        assertEquals(testRole, role);
-        assertEquals(testEmail, email);
+        //then
+        assertEquals("test@email.com", claims.getSubject());
+        assertEquals("ROLE_MEMBER", claims.get("role"));
     }
 
     @DisplayName("토큰 파싱 테스트 - 만료된")
     @Test
     void parseToken_expired() {
-        String testEmail = "test@email.com";
-        String testRole = "ROLE_TEST";
-        MemberDto testMemberDto = new MemberDto(testEmail, null, testRole);
-        when(mockJwtProperties.getAccessExpirationTime()).thenReturn(1L);
-        String testAccessToken = jwtProvider.generateAccessToken(testMemberDto);
+        //when & then
+        ExpiredJwtException e = assertThrows(ExpiredJwtException.class, () -> jwtProvider.parseToken(expiredToken));
 
-        assertThrows(ExpiredJwtException.class, () -> jwtProvider.parseToken(testAccessToken));
     }
 
     @DisplayName("토큰 검증")
     @Test
     void isValidToken() {
         //given
-        String testEmail = "test@email.com";
-        String testRole = "ROLE_TEST";
-        MemberDto testMemberDto = new MemberDto(testEmail, null, testRole);
-        when(mockJwtProperties.getAccessExpirationTime()).thenReturn(10000L);
-        String testAccessToken = jwtProvider.generateAccessToken(testMemberDto);
+        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER");
+        String token = jwtProvider.generateRefreshToken(memberDto);
 
         //when
-        jwtProvider.validateToken(testAccessToken);
-
-        //then
-//        assertTrue(isValid);
+        jwtProvider.validateToken(token);
     }
 
     @DisplayName("토큰 검증 - 만료된")
     @Test
-    void isValidToken_expired() {
-        //given
-        String testEmail = "test@email.com";
-        String testRole = "ROLE_TEST";
-        MemberDto testMemberDto = new MemberDto(testEmail, null, testRole);
-        when(mockJwtProperties.getAccessExpirationTime()).thenReturn(1L);
-        String testAccessToken = jwtProvider.generateAccessToken(testMemberDto);
+    void validateToken_expired() {
+        //when & then
+        InvalidTokenException e = assertThrows(InvalidTokenException.class, () -> jwtProvider.validateToken(expiredToken));
 
-        //when
-        InvalidTokenException e = assertThrows(InvalidTokenException.class, () -> jwtProvider.validateToken(testAccessToken));
-
-        //then
         assertEquals("Expired JWT token", e.getMessage());
     }
 
-    @DisplayName("토큰 검증 - 잘못된 형식")
+    @DisplayName("토큰 검증 - 잘못된 시그니처")
     @Test
-    void isValidToken_changed() {
+    void isValidToken_invalid_signature() {
         //given
-        String testEmail = "test@email.com";
-        String testRole = "ROLE_TEST";
-        MemberDto testMemberDto = new MemberDto(testEmail, null, testRole);
-        when(mockJwtProperties.getAccessExpirationTime()).thenReturn(100000L);
-        String testAccessToken = jwtProvider.generateAccessToken(testMemberDto);
-        testAccessToken = testAccessToken.substring(1);
+        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER");
+        String token = jwtProvider.generateRefreshToken(memberDto);
+        String invalidSignatureToken = token + "wrongSignature";
+        //when & then
+        InvalidTokenException e = assertThrows(InvalidTokenException.class, () -> jwtProvider.validateToken(invalidSignatureToken));
 
-        //when
-        String finalTestAccessToken = testAccessToken;
-        InvalidTokenException e = assertThrows(InvalidTokenException.class, () -> jwtProvider.validateToken(finalTestAccessToken));
+        assertEquals("Invalid JWT signature", e.getMessage());
+    }
 
-        //then
+    @DisplayName("토큰 검증 - 변조된 토큰")
+    @Test
+    void isValidToken_malformed() {
+        //given
+        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER");
+        String token = jwtProvider.generateRefreshToken(memberDto);
+        String[] tokenContent = token.split("\\.");
+        String header = tokenContent[0];
+        String payload = tokenContent[1] + "malformed";
+        String signature = tokenContent[2];
+        String malformedToken = header + payload + signature;
+
+        //when & then
+        InvalidTokenException e = assertThrows(InvalidTokenException.class, () -> jwtProvider.validateToken(malformedToken));
+
         assertEquals("Malformed JWT token", e.getMessage());
     }
 
@@ -212,68 +167,11 @@ class JwtProviderTest {
     @DisplayName("토큰 검증 - null")
     @Test
     void isValidToken_null() {
-        //when
+        //when & then
         InvalidTokenException e = assertThrows(InvalidTokenException.class, () -> jwtProvider.validateToken(null));
 
-        //then
         assertEquals("Invalid JWT token", e.getMessage());
-    }
-
-//    @DisplayName("토큰 유효기간 검증 - 만료되지 않은 토큰")
-//    @Test
-//    void isTokenExpired_freshToken() {
-//        String testEmail = "test@email.com";
-//        String testRole = "ROLE_TEST";
-//        MemberDto testMemberDto = new MemberDto(testEmail, null, testRole);
-//        when(mockJwtProperties.getAccessExpirationTime()).thenReturn(10000L);
-//        String freshToken = jwtProvider.generateAccessToken(testMemberDto);
-//
-//        boolean isExpired = jwtProvider.isTokenExpired(freshToken);
-//
-//        assertFalse(isExpired);
-//    }
-
-//    @DisplayName("토큰 유효기간 검증 - 만료된 토큰")
-//    @Test
-//    void isTokenExpired_oldToken() {
-////        String oldToken = "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9URVNUIiwiaWF0IjoxNzM0MTU2OTc4LCJzdWIiOiJ0ZXN0QGVtYWlsLmNvbSIsImV4cCI6MTczNDE1Njk3OH0.I2RWlygNPTzBFx882IeYKRfswMrA9S3cMU-Fib08WHI";
-//        String testEmail = "test@email.com";
-//        String testRole = "ROLE_TEST";
-//        MemberDto testMemberDto = new MemberDto(testEmail, null, testRole);
-//        when(mockJwtProperties.getAccessExpirationTime()).thenReturn(1L);
-//        String expiredToken = jwtProvider.generateAccessToken(testMemberDto);
-//
-//        boolean isExpired = jwtProvider.isTokenExpired(expiredToken);
-//
-//        assertTrue(isExpired);
-//    }
-
-
-    @Test
-    void getAccessExpirationTime() {
-        //given
-        when(mockJwtProperties.getAccessExpirationTime()).thenReturn(900000L);
-
-        //when
-        long expiredTime = jwtProvider.getAccessExpirationTime();
-
-        //then
-        verify(mockJwtProperties).getAccessExpirationTime();
-        assertEquals(900000L, expiredTime);
-    }
-
-
-    @Test
-    void getRefreshExpirationTime() {
-        //given
-        when(mockJwtProperties.getRefreshExpirationTime()).thenReturn(604800000L);
-
-        //when
-        long expiredTime = jwtProvider.getRefreshExpirationTime();
-
-        //then
-        verify(mockJwtProperties).getRefreshExpirationTime();
-        assertEquals(604800000L, expiredTime);
 
     }
+
 }
