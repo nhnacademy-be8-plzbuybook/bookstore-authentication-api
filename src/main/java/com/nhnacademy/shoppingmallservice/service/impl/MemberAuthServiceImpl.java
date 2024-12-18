@@ -1,6 +1,5 @@
 package com.nhnacademy.shoppingmallservice.service.impl;
 
-import com.nhnacademy.shoppingmallservice.common.exception.NotFoundException;
 import com.nhnacademy.shoppingmallservice.common.exception.UnAuthorizedException;
 import com.nhnacademy.shoppingmallservice.dto.LoginRequestDto;
 import com.nhnacademy.shoppingmallservice.dto.MemberDto;
@@ -17,12 +16,13 @@ import java.util.Optional;
 @Service
 public class MemberAuthServiceImpl implements MemberAuthService {
     private final MemberClient memberClient;
-    private final BCryptPasswordEncoder passwordEncoder;
 
     // 서점서버에 회원정보 요청
     @Override
     public Optional<MemberDto> getMemberByEmail(String email) {
         try {
+            // 멤버 받았다 치고
+//            MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER");
             MemberDto memberDto = memberClient.findMemberByEmail(email);
             return Optional.of(memberDto);
         } catch (FeignException.NotFound e) {
@@ -38,7 +38,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
         if (optionalMemberDto.isPresent()) {
             MemberDto memberDto = optionalMemberDto.get();
 
-            if (passwordEncoder.matches(loginRequest.password(), memberDto.password())) {
+            if (loginRequest.password().equals(memberDto.password())) {
                 return memberDto;
             }
         }
