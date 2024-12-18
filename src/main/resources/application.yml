@@ -38,15 +38,15 @@ spring:
 
 server:
   port: 8083
-#eureka:
-#  client:
-#    register-with-eureka: true
-#    fetch-registry: true
-#    service-url:
-#      defaultZone: http://127.0.0.1:8761/eureka
 eureka:
   client:
-    enabled: false
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://127.0.0.1:8761/eureka
+#eureka:
+#  client:
+#    enabled: false
 ---
 spring:
   config:
