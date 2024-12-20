@@ -19,11 +19,12 @@ public class CustomTokenServiceImpl implements CustomTokenService {
     private final CookieService cookieService;
     private final RedisService redisService;
 
-    public void issueJwt(HttpServletResponse res, MemberDto memberDto) {
+    public String issueJwt(HttpServletResponse res, MemberDto memberDto) {
         String accessToken = jwtProvider.generateAccessToken(memberDto);
         String refreshToken = jwtProvider.generateRefreshToken(memberDto);
-        saveTokenOnCookie(res, TokenType.ACCESS, accessToken);
+//        saveTokenOnCookie(res, TokenType.ACCESS, accessToken);
         redisService.saveValueOnRedis(jwtProvider.getRefreshTokenKey(memberDto.email()), refreshToken, jwtProvider.getRefreshExpirationTime());
+        return accessToken;
     }
 
     // Refresh Token 검증 및 Access Token 재발급

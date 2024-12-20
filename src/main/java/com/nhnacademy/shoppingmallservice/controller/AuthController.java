@@ -26,11 +26,12 @@ public class AuthController {
         return "hi";
     }
 
-    @PostMapping("/api/login")
-    public ResponseEntity<Void> login(@Valid @RequestBody LoginRequestDto loginRequest, HttpServletResponse response) {
+    @PostMapping("/api/auth/login")
+    public ResponseEntity<String> login(@Valid @RequestBody LoginRequestDto loginRequest, HttpServletResponse response) {
 //        Optional<MemberDto> optionalMemberDto = memberAuthService.getMemberByEmail(loginRequest.email())
         MemberDto authenticatedMemberDto = memberAuthService.authenticate(loginRequest);
-        tokenService.issueJwt(response, authenticatedMemberDto);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        //TODO: 임시로 문자열 반환해서 액세스토큰 프론트에 전달 -> json 형식으로 보내주게 바꿔야됨
+        String accessToken = tokenService.issueJwt(response, authenticatedMemberDto);
+        return ResponseEntity.status(HttpStatus.OK).body(accessToken);
     }
 }
