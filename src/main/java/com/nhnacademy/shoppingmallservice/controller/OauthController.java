@@ -1,13 +1,11 @@
 package com.nhnacademy.shoppingmallservice.controller;
 
-import com.nhnacademy.shoppingmallservice.common.exception.NotFoundException;
 import com.nhnacademy.shoppingmallservice.common.exception.NotRegisteredException;
 import com.nhnacademy.shoppingmallservice.dto.MemberDto;
 import com.nhnacademy.shoppingmallservice.dto.TokenDto;
 import com.nhnacademy.shoppingmallservice.service.MemberAuthService;
 import com.nhnacademy.shoppingmallservice.service.impl.CustomTokenServiceImpl;
 import com.nhnacademy.shoppingmallservice.service.impl.PaycoOauthServiceImpl;
-import com.nhnacademy.shoppingmallservice.webClient.FrontClient;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +25,7 @@ public class OauthController {
     private final PaycoOauthServiceImpl paycoOauthService;
     private final CustomTokenServiceImpl tokenService;
 
-    @GetMapping("/api/oauth/login")
+    @GetMapping("/api/auth/oauth/login")
     public void oauthLoginPage(@RequestParam("provider") String provider, HttpServletResponse response) {
         switch (provider) {
             case "payco":
