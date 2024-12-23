@@ -7,7 +7,7 @@ import com.nhnacademy.shoppingmallservice.service.MemberAuthService;
 import com.nhnacademy.shoppingmallservice.webClient.MemberClient;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -16,6 +16,7 @@ import java.util.Optional;
 @Service
 public class MemberAuthServiceImpl implements MemberAuthService {
     private final MemberClient memberClient;
+    private final PasswordEncoder passwordEncoder;
 
     // 서점서버에 회원정보 요청
     @Override
@@ -38,7 +39,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
         if (optionalMemberDto.isPresent()) {
             MemberDto memberDto = optionalMemberDto.get();
 
-            if (loginRequest.password().equals(memberDto.password())) {
+            if (passwordEncoder.matches(loginRequest.password(), memberDto.password())) {
                 return memberDto;
             }
         }
