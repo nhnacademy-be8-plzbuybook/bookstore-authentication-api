@@ -32,56 +32,18 @@ spring:
     mode: HTML
     encoding: UTF-8
 
-#  profiles:
-#      active: dev
 
 
 server:
-  port: 8083
+  port: 8082
 eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
       defaultZone: http://127.0.0.1:8761/eureka
+
 #eureka:
 #  client:
 #    enabled: false
----
-spring:
-  config:
-    import: classpath:application-secret.yml
-    activate:
-      on-profile: prod
-  application:
-    name: authentication-prod
-    ##### TODO || 여기는 알아서 알맞게 수정하시면 됩니다
-  #  datasource:
-  #    url: jdbc:mysql://localhost:3306/plzbuybook_coupon_db
-  #    username: root
-  #    password: 21045
-  #    driver-class-name: com.mysql.cj.jdbc.Driver
-  #  jpa:
-  #    hibernate:
-  #      ddl-auto: create-drop
-  #    properties:
-  #      hibernate:
-  #        dialect: org.hibernate.dialect.MySQLDialect
-  thymeleaf:
-    prefix: classpath:/templates/
-    suffix: .html
-    mode: HTML
-    encoding: UTF-8
 
-#  profiles:
-#      active: dev ????
-
-server:
-  port: 8082 # 인증서버 포트
-
-eureka:
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: http://eureka:8761/eureka
