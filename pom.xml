@@ -105,6 +105,15 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-oauth2-client</artifactId>
         </dependency>
+
+
+<!--        passwordEncoder 사용을 위한 security-core-->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+            <version>6.3.3</version>
+        </dependency>
+
     </dependencies>
 
     <dependencyManagement>
