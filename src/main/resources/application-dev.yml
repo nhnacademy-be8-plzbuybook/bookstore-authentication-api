@@ -2,7 +2,7 @@ spring:
   config:
     import: classpath:application-secret.yml
   application:
-    name: authentication-dev
+    name: authentication
   autoconfigure:
     exclude: org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
 
