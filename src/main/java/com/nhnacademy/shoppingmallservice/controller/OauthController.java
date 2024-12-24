@@ -1,12 +1,11 @@
 package com.nhnacademy.shoppingmallservice.controller;
 
-import com.nhnacademy.shoppingmallservice.common.exception.NotRegisteredException;
 import com.nhnacademy.shoppingmallservice.dto.MemberDto;
+import com.nhnacademy.shoppingmallservice.dto.OauthLoginResponseDto;
 import com.nhnacademy.shoppingmallservice.dto.TokenDto;
 import com.nhnacademy.shoppingmallservice.service.MemberAuthService;
 import com.nhnacademy.shoppingmallservice.service.impl.CustomTokenServiceImpl;
 import com.nhnacademy.shoppingmallservice.service.impl.PaycoOauthServiceImpl;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,31 +25,22 @@ public class OauthController {
     private final CustomTokenServiceImpl tokenService;
 
     @GetMapping("/api/auth/oauth/login")
-    public void oauthLoginPage(@RequestParam("provider") String provider, HttpServletResponse response) {
-        switch (provider) {
-            case "payco":
-                paycoOauthService.redirectToOauthLoginPage(response);
-                break;
-            case "kakao":
-                //TODO: 카카오 oauth 로그인 구현
-                break;
-        }
-    }
-
-    @GetMapping("/oauth/callback")
-    public ResponseEntity<?> oauthLogin(@RequestParam("code") String code, HttpServletResponse res) {
+    public ResponseEntity<OauthLoginResponseDto> oauthLogin(@RequestParam("code") String code) {
         TokenDto tokenDto = paycoOauthService.getTokens(code);
         String email = paycoOauthService.getOAuthUserEmail(tokenDto.accessToken());
-//        MemberDto memberDto = new MemberDto(email, "pwd", "ROLE_MEMBER");
         Optional<MemberDto> optionalMemberDto = memberAuthService.getMemberByEmail(email);
 
+        // 등록된 회원이 있으면 액세스토큰 발급하고 액세스토큰 응답
         if (optionalMemberDto.isPresent()) {
             MemberDto memberDto = optionalMemberDto.get();
-            tokenService.issueJwt(res, memberDto);
-            return ResponseEntity.status(HttpStatus.OK).build();
+            String accessToken = tokenService.issueAccessAndRefreshToken(memberDto);
+            OauthLoginResponseDto oauthLoginResponse = new OauthLoginResponseDto(true, email, accessToken);
+
+            return ResponseEntity.status(HttpStatus.OK).body(oauthLoginResponse);
         }
 
-        throw new NotRegisteredException(email + "is not registered member");
-//        return ResponseEntity.status(HttpStatus.FOUND).body("/signup?email=" + email);
+        // 등록된 회원이 없을때 이메일로 응답
+        OauthLoginResponseDto oauthLoginResponse = new OauthLoginResponseDto(false, email, null);
+        return ResponseEntity.status(HttpStatus.OK).body(oauthLoginResponse);
     }
 }
