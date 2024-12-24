@@ -1,6 +1,7 @@
 package com.nhnacademy.shoppingmallservice.controller;
 
 import com.nhnacademy.shoppingmallservice.dto.LoginRequestDto;
+import com.nhnacademy.shoppingmallservice.dto.LoginResponseDto;
 import com.nhnacademy.shoppingmallservice.dto.MemberDto;
 import com.nhnacademy.shoppingmallservice.service.CustomTokenService;
 import com.nhnacademy.shoppingmallservice.service.MemberAuthService;
@@ -27,11 +28,15 @@ public class AuthController {
     }
 
     @PostMapping("/api/auth/login")
-    public ResponseEntity<String> login(@Valid @RequestBody LoginRequestDto loginRequest, HttpServletResponse response) {
-//        Optional<MemberDto> optionalMemberDto = memberAuthService.getMemberByEmail(loginRequest.email())
-        MemberDto authenticatedMemberDto = memberAuthService.authenticate(loginRequest);
-        //TODO: 임시로 문자열 반환해서 액세스토큰 프론트에 전달 -> json 형식으로 보내주게 바꿔야됨
-        String accessToken = tokenService.issueJwt(response, authenticatedMemberDto);
-        return ResponseEntity.status(HttpStatus.OK).body(accessToken);
+    public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequest, HttpServletResponse response) {
+        MemberDto memberDto = memberAuthService.authenticate(loginRequest);
+        String accessToken = tokenService.issueAccessAndRefreshToken(memberDto);
+        return ResponseEntity.status(HttpStatus.OK).body(new LoginResponseDto(accessToken));
     }
+
+//    @PostMapping("/api/auth/login")
+//    public ResponseEntity<MemberDto> login(@Valid @RequestBody LoginRequestDto loginRequest) {
+//        MemberDto authenticatedMemberDto = memberAuthService.authenticate(loginRequest);
+//        return ResponseEntity.status(HttpStatus.OK).body(authenticatedMemberDto);
+//    }
 }
