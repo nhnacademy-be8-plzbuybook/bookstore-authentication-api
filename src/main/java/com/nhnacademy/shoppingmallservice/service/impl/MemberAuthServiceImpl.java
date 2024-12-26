@@ -22,9 +22,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
     @Override
     public Optional<MemberDto> getMemberByEmail(String email) {
         try {
-            // 멤버 받았다 치고
-            MemberDto memberDto = new MemberDto("123@email.com", "123", "ROLE_MEMBER");
-//            MemberDto memberDto = memberClient.findMemberByEmail(email);
+            MemberDto memberDto = memberClient.findMemberByEmail(email);
             return Optional.of(memberDto);
         } catch (FeignException.NotFound e) {
             return Optional.empty();

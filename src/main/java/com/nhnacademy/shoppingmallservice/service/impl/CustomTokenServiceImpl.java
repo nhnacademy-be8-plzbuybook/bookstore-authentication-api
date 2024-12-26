@@ -7,7 +7,6 @@ import com.nhnacademy.shoppingmallservice.service.CookieService;
 import com.nhnacademy.shoppingmallservice.service.CustomTokenService;
 import com.nhnacademy.shoppingmallservice.service.RedisService;
 import io.jsonwebtoken.Claims;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +22,14 @@ public class CustomTokenServiceImpl implements CustomTokenService {
         String accessToken = jwtProvider.generateAccessToken(memberDto);
         String refreshToken = jwtProvider.generateRefreshToken(memberDto);
 //        saveTokenOnCookie(res, TokenType.ACCESS, accessToken);
+        redisService.saveValueOnRedis(jwtProvider.getRefreshTokenKey(memberDto.email()), refreshToken, jwtProvider.getRefreshExpirationTime());
+        return accessToken;
+    }
+
+    public String issueAccessAndRefreshToken(MemberDto memberDto) {
+        String accessToken = issueAccessToken(memberDto);
+        String refreshToken = issueRefreshToken(memberDto);
+
         redisService.saveValueOnRedis(jwtProvider.getRefreshTokenKey(memberDto.email()), refreshToken, jwtProvider.getRefreshExpirationTime());
         return accessToken;
     }
@@ -51,6 +58,16 @@ public class CustomTokenServiceImpl implements CustomTokenService {
         String key = (type == TokenType.ACCESS) ? "accessToken" : "refreshToken";
         long expiry = (type == TokenType.ACCESS) ? jwtProvider.getAccessExpirationTime() : jwtProvider.getRefreshExpirationTime();
         cookieService.saveOnCookie(response, key, token, (int) expiry / 1000);
+    }
+
+    @Override
+    public String issueAccessToken(MemberDto memberDto) {
+        return jwtProvider.generateAccessToken(memberDto);
+    }
+
+    @Override
+    public String issueRefreshToken(MemberDto memberDto) {
+        return jwtProvider.generateRefreshToken(memberDto);
     }
 
 //    public void checkUserAddress(String originAddress, HttpServletRequest request) {

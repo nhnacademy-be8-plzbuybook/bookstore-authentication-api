@@ -8,4 +8,7 @@ public interface CustomTokenService {
     String issueJwt(HttpServletResponse res, MemberDto memberDto);
     String reissueAccessToken(String email);
     void saveTokenOnCookie(HttpServletResponse response, TokenType type, String value);
+    String issueAccessToken(MemberDto memberDto);
+    String issueRefreshToken(MemberDto memberDto);
+    String issueAccessAndRefreshToken(MemberDto memberDto);
 }
