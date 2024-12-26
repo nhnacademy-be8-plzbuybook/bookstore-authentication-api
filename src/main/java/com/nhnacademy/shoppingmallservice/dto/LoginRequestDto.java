@@ -1,9 +1,9 @@
 package com.nhnacademy.shoppingmallservice.dto;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 
-public record LoginRequestDto(@NotNull String email,
-                              @NotNull String password) {
+public record LoginRequestDto(@NotBlank String email,
+                              @NotBlank String password) {
 
 
 }
