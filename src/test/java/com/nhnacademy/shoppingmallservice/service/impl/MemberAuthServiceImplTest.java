@@ -5,12 +5,12 @@ import com.nhnacademy.shoppingmallservice.dto.LoginRequestDto;
 import com.nhnacademy.shoppingmallservice.dto.MemberDto;
 import com.nhnacademy.shoppingmallservice.webClient.MemberClient;
 import feign.FeignException;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
@@ -21,11 +21,13 @@ import static org.mockito.Mockito.*;
 class MemberAuthServiceImplTest {
     @Mock
     private MemberClient memberClient;
+    @Mock
+    private PasswordEncoder passwordEncoder;
     @InjectMocks
     private MemberAuthServiceImpl memberAuthService;
 
     @Test
-    void getMemberByEmail() {
+    void getMemberByEmail_found() {
         //given
         String email = "test@email.com";
         MemberDto mockMemberDto = mock(MemberDto.class);
@@ -53,7 +55,7 @@ class MemberAuthServiceImplTest {
         verify(memberClient).findMemberByEmail(email);
     }
 
-    @Disabled
+//    @Disabled
     @Test
     void authenticate_success() {
         //given
@@ -61,6 +63,7 @@ class MemberAuthServiceImplTest {
         MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER");
 
         when(memberClient.findMemberByEmail("test@email.com")).thenReturn(memberDto);
+        when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
 
         //when
         MemberDto result = memberAuthService.authenticate(loginRequestDto);
@@ -86,7 +89,7 @@ class MemberAuthServiceImplTest {
         verify(memberClient).findMemberByEmail(email);
     }
 
-    @Disabled
+//    @Disabled
     @Test
     void authenticate_fail() {
         //given
@@ -94,6 +97,7 @@ class MemberAuthServiceImplTest {
         MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER");
 
         when(memberClient.findMemberByEmail("test@email.com")).thenReturn(memberDto);
+        when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
 
         //when
         Exception e = assertThrows(UnAuthorizedException.class, () -> memberAuthService.authenticate(loginRequestDto));
