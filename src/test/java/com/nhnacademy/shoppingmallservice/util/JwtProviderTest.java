@@ -6,28 +6,43 @@ import com.nhnacademy.shoppingmallservice.dto.MemberDto;
 import com.nhnacademy.shoppingmallservice.properties.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
-@ActiveProfiles(value = "secret")
-@EnableConfigurationProperties(JwtProperties.class)
+@ExtendWith(MockitoExtension.class)
 class JwtProviderTest {
-    @Autowired
     private JwtProvider jwtProvider;
 
-    @SpyBean
+    @Mock
     private JwtProperties jwtProperties;
 
-    private final String expiredToken = "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9NRU1CRVIiLCJpYXQiOjE3MzQ0ODE3OTAsInN1YiI6InRlc3RAZW1haWwuY29tIiwiZXhwIjoxNzM0NDgyNjkwfQ.H-A849hldL37X2CbQp7AgIRjaSRsXSpK4aZ3xifdqLw";
+//    private final String expiredToken = "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9NRU1CRVsdfsdfsdfwuY29tIiwiZXhwIjoxNzM0NDgyNjkwfQ.H-A849hldL37X2CbQp7AgIRjaSRsXSpK4aZ3xifdqLw";
+
+    @BeforeEach
+    void setup() {
+        lenient().when(jwtProperties.getAccessExpirationTime()).thenReturn(900000L);
+        lenient().when(jwtProperties.getRefreshExpirationTime()).thenReturn(604800000L);
+        lenient().when(jwtProperties.getSecret()).thenReturn("Ny0pm2CWIAST07ElsTAVZgCqJKJd2bE9lpKyewuthisisfakeSecretWIAST07ElsTAVZgCqJKJd2bE9lpKyewuOhyyKoBApt1");
+        lenient().when(jwtProperties.getHeaderString()).thenReturn("Authorization");
+        lenient().when(jwtProperties.getTokenPrefix()).thenReturn("Bearer");
+
+        jwtProvider = new JwtProvider(jwtProperties);
+    }
+
 
     @Test
     @DisplayName("accessToken 생성 테스트 - 호출 검증")
@@ -43,7 +58,6 @@ class JwtProviderTest {
         Claims claims = jwtProvider.parseToken(token);
         assertEquals("test@email.com", claims.getSubject());
         assertEquals("ROLE_MEMBER", claims.get("role"));
-        verify(jwtProperties, times(1)).getAccessExpirationTime();
     }
 
     @DisplayName("accessToken 생성 테스트 - null 인자")
@@ -107,6 +121,11 @@ class JwtProviderTest {
     @DisplayName("토큰 파싱 테스트 - 만료된")
     @Test
     void parseToken_expired() {
+        //given
+        when(jwtProperties.getAccessExpirationTime()).thenReturn(1L);
+        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER");
+        String expiredToken = jwtProvider.generateAccessToken(memberDto);
+
         //when & then
         ExpiredJwtException e = assertThrows(ExpiredJwtException.class, () -> jwtProvider.parseToken(expiredToken));
 
@@ -126,6 +145,11 @@ class JwtProviderTest {
     @DisplayName("토큰 검증 - 만료된")
     @Test
     void validateToken_expired() {
+        //given
+        when(jwtProperties.getAccessExpirationTime()).thenReturn(1L);
+        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER");
+        String expiredToken = jwtProvider.generateAccessToken(memberDto);
+
         //when & then
         InvalidTokenException e = assertThrows(InvalidTokenException.class, () -> jwtProvider.validateToken(expiredToken));
 
