@@ -1,6 +1,6 @@
 spring:
   config:
-    import: classpath:application-secret.yml
+    import: file:/app/application-secret.yml
   application:
     name: authentication
   autoconfigure:
