@@ -1,0 +1,54 @@
+<configuration>
+    <!-- 콘솔에 로그를 출력하는 appender 설정 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss} [%thread] [%logger{0}:%line] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 운영환경(Prod) 프로필 설정 -->
+    <springProfile name="prod">
+
+        <!-- LogNCrashHttpAppender 설정 -->
+        <appender name="logNCrashHttp" class="com.toast.java.logncrash.logback.LogNCrashHttpAppender">
+            <appKey>nMWnKdBvAFvUW8XL</appKey>
+            <logSource>plzbuybook-auth</logSource>
+            <version>1.0.0</version>
+            <logType>logfor4</logType>
+            <debug>true</debug>
+            <category>log_service</category>
+            <errorCodeType>action</errorCodeType>
+        </appender>
+
+        <!-- AsyncAppender 설정 -->
+        <appender name="LNCS-APPENDER" class="ch.qos.logback.classic.AsyncAppender">
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>WARN</level>
+            </filter>
+            <includeCallerData value="false"/>
+            <queueSize value="2048"/>
+            <neverBlock value="true"/>
+            <maxFlushTime value="60000"/>
+            <appender-ref ref="logNCrashHttp"/>
+        </appender>
+
+        <!-- 특정 로거 설정 -->
+        <logger name="user-logger" additivity="false">
+            <appender-ref ref="LNCS-APPENDER"/>
+        </logger>
+
+        <!-- 루트 로거 설정 -->
+        <root level="WARN">
+            <appender-ref ref="STDOUT"/>
+            <appender-ref ref="LNCS-APPENDER"/>
+        </root>
+    </springProfile>
+
+    <!-- 개발환경(Dev) 프로필 설정 -->
+    <springProfile name="dev">
+        <root level="INFO">
+            <appender-ref ref="STDOUT"/>
+        </root>
+    </springProfile>
+
+</configuration>
