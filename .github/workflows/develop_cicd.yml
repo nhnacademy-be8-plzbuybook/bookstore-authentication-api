@@ -27,5 +27,14 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
+      # Create application-secret.yml from GitHub Secrets
+      - name: Create application-secret.yml from GitHub Secrets
+        run: |
+          mkdir -p src/main/resources
+          echo "$APPLICATION_SECRET_YML" > src/main/resources/application-secret.yml
+        env:
+          APPLICATION_SECRET_YML: ${{ secrets.APPLICATION_SECRET_YML }}
+
+
       - name: Build with Maven
         run: mvn -B package --file pom.xml
