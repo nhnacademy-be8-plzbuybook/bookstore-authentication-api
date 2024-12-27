@@ -62,4 +62,4 @@ jobs:
             sudo docker stop auth || true
             sudo docker rm auth || true
             sudo docker build -t auth-image .
-            sudo docker run -d -p 8082:8082 --name auth --net front_network -e "SPRING_PROFILES_ACTIVE=prod" -v /home/ubuntu/secret/application-secret.yml:/app/application-secret.yml auth-image
+            sudo docker run -d -p 8082:8082 --name auth --net front_network -e "SPRING_PROFILES_ACTIVE=prod" -v /home/nhnacademy/auth/src/main/resources/application-secret.yml:/app/application-secret.yml auth-image
