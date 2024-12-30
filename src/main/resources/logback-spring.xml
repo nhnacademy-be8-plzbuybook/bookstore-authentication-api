@@ -2,7 +2,7 @@
     <!-- 콘솔에 로그를 출력하는 appender 설정 -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss} [%thread] [%logger{0}:%line] - %msg%n</pattern>
+            <pattern> %green(%d{yyyy-MM-dd HH:mm:ss}) %highlight([%5p]) %yellow([${PID:-}]) --- %magenta([%thread]) %cyan(%logger{36}:%L) :  %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -14,7 +14,7 @@
             <appKey>nMWnKdBvAFvUW8XL</appKey>
             <logSource>plzbuybook-auth</logSource>
             <version>1.0.0</version>
-            <logType>logfor4</logType>
+            <logType>log</logType>
             <debug>true</debug>
             <category>log_service</category>
             <errorCodeType>action</errorCodeType>
