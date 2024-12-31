@@ -78,11 +78,11 @@ class JwtProviderTest {
         String token = jwtProvider.generateRefreshToken(memberDto);
 
         //then
-        assertNotNull(token);
+        assertNotNull(token, "토큰이 null이 아니어야 합니다.");
         Claims claims = jwtProvider.parseToken(token);
-        assertEquals("test@email.com", claims.getSubject());
-        assertEquals("ROLE_MEMBER", claims.get("role"));
-        verify(jwtProperties, times(1)).getRefreshExpirationTime();
+        assertEquals("test@email.com", claims.getSubject(), "토큰의 subject가 예상 값과 다릅니다.");
+        assertEquals("ROLE_MEMBER", claims.get("role"), "토큰의 role 클레임이 예상 값과 다릅니다.");
+        assertEquals("WITHDRAWAL", claims.get("memberStateName"), "토큰의 memberStateName 클레임이 예상 값과 다릅니다.");
     }
 
     @DisplayName("refreshToken 생성 테스트 - null 인자")

@@ -56,6 +56,10 @@ public class CustomTokenServiceImpl implements CustomTokenService {
 
         MemberDto memberDto = getMemberByEmail(email);
 
+        if (memberDto == null) {
+            throw new LoginFailException("회원 정보가 존재하지 않습니다.");
+        }
+
         validateMemberState(memberDto);
 
         String refreshTokenKey = jwtProvider.getRefreshTokenKey(email);
@@ -65,11 +69,14 @@ public class CustomTokenServiceImpl implements CustomTokenService {
         jwtProvider.validateToken(refreshToken);
 
         Claims claims = jwtProvider.parseToken(refreshToken);
-        if (claims.get("role") == null || claims.get("memberStateName") == null) {
+        String role = (String) claims.get("role");
+        String memberStateName = (String) claims.get("memberStateName");
+
+        if (role == null || memberStateName == null) {
             throw new LoginFailException("토큰에 필수 클레임 값이 누락되었습니다.");
         }
 
-        memberDto = new MemberDto(email, null, (String) claims.get("role"), (String) claims.get("memberStateName"));
+        memberDto = new MemberDto(email, null, role, memberStateName);
         return jwtProvider.generateAccessToken(memberDto);
     }
 
@@ -79,7 +86,7 @@ public class CustomTokenServiceImpl implements CustomTokenService {
         try {
             return memberClient.findMemberByEmail(email); // MemberClient를 통해 회원 정보 가져오기
         } catch (FeignException.NotFound e) {
-            throw new LoginFailException("이메일에 해당하는 회원이 존재하지 않습니다.");
+            throw new LoginFailException("회원 정보가 존재하지 않습니다.");
         }
     }
 

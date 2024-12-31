@@ -86,7 +86,7 @@ class MemberAuthServiceImplTest {
         Exception e = assertThrows(UnAuthorizedException.class, () -> memberAuthService.authenticate(loginRequestDto));
 
         //then
-        assertEquals("wrong Id or Password", e.getMessage());
+        assertEquals("회원 정보가 존재하지 않습니다.", e.getMessage());
         verify(memberClient).findMemberByEmail(email);
     }
     @Test
@@ -107,22 +107,22 @@ class MemberAuthServiceImplTest {
     }
 
 //    @Disabled
-//    @Test
-//    void authenticate_fail() {
-//        //given
-//        LoginRequestDto loginRequestDto = spy(new LoginRequestDto("test@email.com", "wrongPwd"));
-//        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER", "ACTIVE");
-//
-//        when(memberClient.findMemberByEmail("test@email.com")).thenReturn(memberDto);
-//        when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
-//
-//        //when
-//        Exception e = assertThrows(UnAuthorizedException.class, () -> memberAuthService.authenticate(loginRequestDto));
-//
-//        //then
-//        assertEquals("wrong Id or Password", e.getMessage());
-//        verify(memberClient).findMemberByEmail(loginRequestDto.email());
-//        verify(loginRequestDto).password();
-//    }
-//
+    @Test
+    void authenticate_fail() {
+        //given
+        LoginRequestDto loginRequestDto = spy(new LoginRequestDto("test@email.com", "wrongPwd"));
+        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER", "ACTIVE");
+
+        when(memberClient.findMemberByEmail("test@email.com")).thenReturn(memberDto);
+        when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
+
+        //when
+        Exception e = assertThrows(UnAuthorizedException.class, () -> memberAuthService.authenticate(loginRequestDto));
+
+        //then
+        assertEquals("잘못된 아이디 또는 비밀번호입니다.", e.getMessage());
+        verify(memberClient).findMemberByEmail(loginRequestDto.email());
+        verify(loginRequestDto).password();
+    }
+
 }

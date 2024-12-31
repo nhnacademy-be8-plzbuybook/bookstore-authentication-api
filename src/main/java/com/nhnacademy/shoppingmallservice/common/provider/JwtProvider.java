@@ -88,7 +88,7 @@ public class JwtProvider {
         } catch (MalformedJwtException e) {
             throw new InvalidTokenException("Malformed JWT token", e);
         } catch (Exception e) {
-            throw new InvalidTokenException("Invalid JWT token", e);
+            throw new InvalidTokenException("Invalid token", e);
         }
     }
 
