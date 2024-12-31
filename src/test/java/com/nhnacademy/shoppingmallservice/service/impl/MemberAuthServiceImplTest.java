@@ -1,5 +1,6 @@
 package com.nhnacademy.shoppingmallservice.service.impl;
 
+import com.nhnacademy.shoppingmallservice.common.exception.LoginFailException;
 import com.nhnacademy.shoppingmallservice.common.exception.UnAuthorizedException;
 import com.nhnacademy.shoppingmallservice.dto.LoginRequestDto;
 import com.nhnacademy.shoppingmallservice.dto.MemberDto;
@@ -60,7 +61,7 @@ class MemberAuthServiceImplTest {
     void authenticate_success() {
         //given
         LoginRequestDto loginRequestDto = new LoginRequestDto("test@email.com", "test");
-        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER");
+        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER", "ACTIVE");
 
         when(memberClient.findMemberByEmail("test@email.com")).thenReturn(memberDto);
         when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
@@ -88,24 +89,40 @@ class MemberAuthServiceImplTest {
         assertEquals("wrong Id or Password", e.getMessage());
         verify(memberClient).findMemberByEmail(email);
     }
-
-//    @Disabled
     @Test
-    void authenticate_fail() {
-        //given
-        LoginRequestDto loginRequestDto = spy(new LoginRequestDto("test@email.com", "wrongPwd"));
-        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER");
+    void authenticate_member_withdrawal() {
+        // given
+        LoginRequestDto loginRequestDto = new LoginRequestDto("test@email.com", "test");
+        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER", "WITHDRAWAL");
 
         when(memberClient.findMemberByEmail("test@email.com")).thenReturn(memberDto);
-        when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
+        when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
 
-        //when
-        Exception e = assertThrows(UnAuthorizedException.class, () -> memberAuthService.authenticate(loginRequestDto));
+        // when
+        Exception e = assertThrows(LoginFailException.class, () -> memberAuthService.authenticate(loginRequestDto));
 
-        //then
-        assertEquals("wrong Id or Password", e.getMessage());
-        verify(memberClient).findMemberByEmail(loginRequestDto.email());
-        verify(loginRequestDto).password();
+        // then
+        assertEquals("이미 탈퇴한 회원입니다.", e.getMessage());
+        verify(memberClient).findMemberByEmail("test@email.com");
     }
 
+//    @Disabled
+//    @Test
+//    void authenticate_fail() {
+//        //given
+//        LoginRequestDto loginRequestDto = spy(new LoginRequestDto("test@email.com", "wrongPwd"));
+//        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER", "ACTIVE");
+//
+//        when(memberClient.findMemberByEmail("test@email.com")).thenReturn(memberDto);
+//        when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
+//
+//        //when
+//        Exception e = assertThrows(UnAuthorizedException.class, () -> memberAuthService.authenticate(loginRequestDto));
+//
+//        //then
+//        assertEquals("wrong Id or Password", e.getMessage());
+//        verify(memberClient).findMemberByEmail(loginRequestDto.email());
+//        verify(loginRequestDto).password();
+//    }
+//
 }

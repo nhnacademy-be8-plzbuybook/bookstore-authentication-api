@@ -48,7 +48,7 @@ class JwtProviderTest {
     @DisplayName("accessToken 생성 테스트 - 호출 검증")
     void generateAccessToken() {
         // given
-        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER");
+        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER", "WITHDRAWAL");
 
         // when
         String token = jwtProvider.generateAccessToken(memberDto);
@@ -72,7 +72,7 @@ class JwtProviderTest {
     @Test
     void generateRefreshToken() {
         //given
-        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER");
+        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER", "WITHDRAWAL");
 
         //when
         String token = jwtProvider.generateRefreshToken(memberDto);
@@ -107,7 +107,7 @@ class JwtProviderTest {
     @Test
     void parseToken() {
         //given
-        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER");
+        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER", "WITHDRAWAL");
         String token = jwtProvider.generateRefreshToken(memberDto);
 
         //when
@@ -123,7 +123,7 @@ class JwtProviderTest {
     void parseToken_expired() {
         //given
         when(jwtProperties.getAccessExpirationTime()).thenReturn(1L);
-        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER");
+        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER", "WITHDRAWAL");
         String expiredToken = jwtProvider.generateAccessToken(memberDto);
 
         //when & then
@@ -135,7 +135,7 @@ class JwtProviderTest {
     @Test
     void isValidToken() {
         //given
-        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER");
+        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER", "WITHDRAWAL");
         String token = jwtProvider.generateRefreshToken(memberDto);
 
         //when
@@ -147,7 +147,7 @@ class JwtProviderTest {
     void validateToken_expired() {
         //given
         when(jwtProperties.getAccessExpirationTime()).thenReturn(1L);
-        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER");
+        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER", "WITHDRAWAL");
         String expiredToken = jwtProvider.generateAccessToken(memberDto);
 
         //when & then
@@ -160,7 +160,7 @@ class JwtProviderTest {
     @Test
     void isValidToken_invalid_signature() {
         //given
-        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER");
+        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER", "WITHDRAWAL");
         String token = jwtProvider.generateRefreshToken(memberDto);
         String invalidSignatureToken = token + "wrongSignature";
         //when & then
@@ -173,7 +173,7 @@ class JwtProviderTest {
     @Test
     void isValidToken_malformed() {
         //given
-        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER");
+        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER", "WITHDRAWAL");
         String token = jwtProvider.generateRefreshToken(memberDto);
         String[] tokenContent = token.split("\\.");
         String header = tokenContent[0];
