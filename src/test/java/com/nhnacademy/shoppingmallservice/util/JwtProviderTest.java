@@ -194,7 +194,7 @@ class JwtProviderTest {
         //when & then
         InvalidTokenException e = assertThrows(InvalidTokenException.class, () -> jwtProvider.validateToken(null));
 
-        assertEquals("Invalid JWT token", e.getMessage());
+        assertEquals("Invalid token", e.getMessage());
 
     }
 
