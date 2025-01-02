@@ -2,8 +2,10 @@ package com.nhnacademy.shoppingmallservice.common.config;
 
 import com.nhnacademy.shoppingmallservice.skm.properties.SKMProperties;
 import com.nhnacademy.shoppingmallservice.skm.service.SecureKeyManagerService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
@@ -24,51 +26,76 @@ public class RedisConfig {
         this.skMProperties = skMProperties;
     }
 
-    @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        RedisTemplate<String, Object> sessionRedisTemplate = new RedisTemplate<>();
+    private RedisConnectionFactory createRedisConnectionFactory(String hostKey, String portKey, String passwordKey, String databaseKey) {
+        String host = secureKeyManagerService.fetchSecret(hostKey);
+        int port = Integer.parseInt(secureKeyManagerService.fetchSecret(portKey));
+        String password = secureKeyManagerService.fetchSecret(passwordKey);
+        int database = Integer.parseInt(secureKeyManagerService.fetchSecret(databaseKey));
 
-        sessionRedisTemplate.setConnectionFactory(redisConnectionFactory);
-        sessionRedisTemplate.setKeySerializer(new StringRedisSerializer());
-        sessionRedisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
-        sessionRedisTemplate.setHashKeySerializer(new StringRedisSerializer());
-        sessionRedisTemplate.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
+        config.setHostName(host);
+        config.setPort(port);
+        config.setPassword(password);
+        config.setDatabase(database);
 
-        return sessionRedisTemplate;
+        return new LettuceConnectionFactory(config);
     }
 
-    @Bean
-    public String getRedisHost() {
-        return secureKeyManagerService.fetchSecret(skMProperties.getRedis().getHost());
+
+    @Bean(name = "jwtRedisConnectionFactory")
+    public RedisConnectionFactory jwtRedisConnectionFactory() {
+        return createRedisConnectionFactory(
+                skMProperties.getRedis().getHost(),
+                skMProperties.getRedis().getPort(),
+                skMProperties.getRedis().getPassword(),
+                skMProperties.getRedis().getRange()
+        );
     }
 
-    @Bean
-    public String getRedisPort(){
-        return secureKeyManagerService.fetchSecret(skMProperties.getRedis().getPort());
+    @Bean(name = "verifyCodeRedisConnectionFactory")
+    public RedisConnectionFactory verifyCodeRedisConnectionFactory() {
+        return createRedisConnectionFactory(
+                skMProperties.getVerify_redis().getHost(),
+                skMProperties.getVerify_redis().getPort(),
+                skMProperties.getVerify_redis().getPassword(),
+                skMProperties.getVerify_redis().getRange()
+        );
     }
 
-    @Bean
-    public String getRedisPassword() {
-        return secureKeyManagerService.fetchSecret(skMProperties.getRedis().getPassword());
+    private RedisTemplate<String, Object> createRedisTemplate(
+            RedisConnectionFactory connectionFactory,
+            boolean isValueJson
+    ) {
+        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(connectionFactory);
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+
+        if (isValueJson) {
+            redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+            redisTemplate.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
+        } else {
+            redisTemplate.setValueSerializer(new StringRedisSerializer());
+            redisTemplate.setHashValueSerializer(new StringRedisSerializer());
+        }
+
+        redisTemplate.afterPropertiesSet();
+        return redisTemplate;
     }
 
-    @Bean
-    public String getRedisRange(){
-        return secureKeyManagerService.fetchSecret(skMProperties.getRedis().getRange());
+    @Primary
+    @Bean(name = "redisTemplate")
+    public RedisTemplate<String, Object> defaultRedisTemplate(@Qualifier("jwtRedisConnectionFactory") RedisConnectionFactory connectionFactory) {
+        return createRedisTemplate(connectionFactory, true);
     }
 
-    @Bean
-    public RedisConnectionFactory redisConnectionFactory() {
-        String host = secureKeyManagerService.fetchSecret(skMProperties.getRedis().getHost());
-        int port = Integer.parseInt(secureKeyManagerService.fetchSecret(skMProperties.getRedis().getPort()));
-        String password = secureKeyManagerService.fetchSecret(skMProperties.getRedis().getPassword());
-        int database = Integer.parseInt(secureKeyManagerService.fetchSecret(skMProperties.getRedis().getRange()));
+    @Bean(name = "verifyRedisTemplate")
+    public RedisTemplate<String, Object> verifyRedisTemplate(RedisConnectionFactory verifyCodeRedisConnectionFactory) {
+        return createRedisTemplate(verifyCodeRedisConnectionFactory, true);
+    }
 
-        RedisStandaloneConfiguration redisConfig = new RedisStandaloneConfiguration();
-        redisConfig.setHostName(host);
-        redisConfig.setPort(port);
-        redisConfig.setPassword(password);
-        redisConfig.setDatabase(database);
-        return new LettuceConnectionFactory(redisConfig);
+    @Bean(name = "jwtRedisTemplate")
+    public RedisTemplate<String, Object> jwtTokenRedisTemplate(RedisConnectionFactory jwtRedisConnectionFactory) {
+        return createRedisTemplate(jwtRedisConnectionFactory, false);
     }
 }
