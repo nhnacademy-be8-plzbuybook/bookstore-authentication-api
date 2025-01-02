@@ -8,16 +8,9 @@
 
     <!-- 운영환경(Prod) 프로필 설정 -->
     <springProfile name="prod">
-
-        <!-- LogNCrashHttpAppender 설정 -->
-        <appender name="logNCrashHttp" class="com.toast.java.logncrash.logback.LogNCrashHttpAppender">
-            <appKey>nMWnKdBvAFvUW8XL</appKey>
-            <logSource>plzbuybook-auth</logSource>
-            <version>1.0.0</version>
-            <logType>log</logType>
-            <debug>true</debug>
-            <category>log_service</category>
-            <errorCodeType>action</errorCodeType>
+        <!-- LogNCrashHttpAppender 선언 -->
+        <appender name="logNCrashHttp" class="com.nhnacademy.shoppingmallservice.common.log.LogCrashAppender">
+            <url>https://api-logncrash.cloud.toast.com/v2/log</url>
         </appender>
 
         <!-- AsyncAppender 설정 -->
