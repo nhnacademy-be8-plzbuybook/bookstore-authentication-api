@@ -30,10 +30,16 @@ public class AuthController {
     @PostMapping("/api/auth/login")
     public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequest, HttpServletResponse response) {
         MemberDto memberDto = memberAuthService.authenticate(loginRequest);
+
+        if ("DORMANT".equals(memberDto.memberStateName())) {
+            LoginResponseDto dormantResponse = new LoginResponseDto(null, memberDto.memberStateName(), "/auth/verify-code");
+
+            return ResponseEntity.status(HttpStatus.OK).body(dormantResponse);
+        }
+
         String accessToken = tokenService.issueAccessAndRefreshToken(memberDto);
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new LoginResponseDto(accessToken, memberDto.memberStateName())
-        );
+        LoginResponseDto successResponse = new LoginResponseDto(accessToken, memberDto.memberStateName(), null);
+        return ResponseEntity.status(HttpStatus.OK).body(successResponse);
     }
 
 
