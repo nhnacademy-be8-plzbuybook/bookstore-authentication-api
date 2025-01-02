@@ -32,23 +32,24 @@ public class JwtProvider {
         if (memberDto == null) {
             throw new IllegalArgumentException("invalid MemberDto");
         }
-        return createJwt(memberDto.email(), memberDto.role(), jwtProperties.getAccessExpirationTime());
+        return createJwt(memberDto.email(), memberDto.role(), memberDto.memberStateName(), jwtProperties.getAccessExpirationTime());
     }
 
     public String generateRefreshToken(MemberDto memberDto) {
         if (memberDto == null) {
             throw new IllegalArgumentException("invalid MemberDto");
         }
-        return createJwt(memberDto.email(), memberDto.role(), jwtProperties.getRefreshExpirationTime());
+        return createJwt(memberDto.email(), memberDto.role(), memberDto.memberStateName(), jwtProperties.getAccessExpirationTime());
     }
 
-    private String createJwt(String email, String role, Long expiredTime) {
-        if (email.isBlank() || role.isBlank() || expiredTime == null) {
+    private String createJwt(String email, String role, String memberStateName, Long expiredTime) {
+        if (email.isBlank() || role.isBlank() || memberStateName.isBlank() || expiredTime == null) {
             throw new IllegalArgumentException("invalid parameters for creating JWT");
         }
 
         Claims claims = Jwts.claims();
         claims.put("role", role);
+        claims.put("memberStateName", memberStateName); // 클레임 추가
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -70,7 +71,16 @@ public class JwtProvider {
     // 토큰 만료, 변조, 잘못된형식 분리해서 생각?
     public void validateToken(String token) {
         try {
-            parseToken(token); // 토큰 파싱
+            Claims claims = parseToken(token);
+
+            // 필수 클레임 검증
+            if (claims.get("role") == null) {
+                throw new InvalidTokenException("JWT token is missing 'role' claim", null);
+            }
+            if (claims.get("memberStateName") == null) {
+                throw new InvalidTokenException("JWT token is missing 'memberStateName' claim", null);
+            }
+
         } catch (ExpiredJwtException e) {
             throw new InvalidTokenException("Expired JWT token", e);
         } catch (SignatureException e) {
@@ -78,10 +88,9 @@ public class JwtProvider {
         } catch (MalformedJwtException e) {
             throw new InvalidTokenException("Malformed JWT token", e);
         } catch (Exception e) {
-            throw new InvalidTokenException("Invalid JWT token", e);
+            throw new InvalidTokenException("Invalid token", e);
         }
     }
-
 
     public String getRefreshTokenKey(String email) {
         return "refresh_token:" + email;

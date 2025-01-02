@@ -20,6 +20,20 @@ eureka:
     service-url:
       defaultZone: http://127.0.0.1:8761/eureka
 
+app:
+  skm:
+    url: https://api-keymanager.nhncloudservice.com
+    appKey: qTQNj7LyHhdAazH3
+    keystoreFile: skm.p12
+    password: 4444
+
+    redis:
+      host: 0dbeca3302744fb6ac41d151044706d6
+      port: 66a1bdc44e904288b4fba04badf25676
+      password: 24a8a9d2549242ab81218b9279a61224
+      range: aef89576c3ff472381f028ff66becb3c
+
+
 
 server:
   port: 8082

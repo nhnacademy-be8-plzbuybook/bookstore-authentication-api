@@ -31,8 +31,12 @@ public class AuthController {
     public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequest, HttpServletResponse response) {
         MemberDto memberDto = memberAuthService.authenticate(loginRequest);
         String accessToken = tokenService.issueAccessAndRefreshToken(memberDto);
-        return ResponseEntity.status(HttpStatus.OK).body(new LoginResponseDto(accessToken));
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new LoginResponseDto(accessToken, memberDto.memberStateName())
+        );
     }
+
+
 
 //    @PostMapping("/api/auth/login")
 //    public ResponseEntity<MemberDto> login(@Valid @RequestBody LoginRequestDto loginRequest) {

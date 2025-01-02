@@ -1,5 +1,6 @@
 package com.nhnacademy.shoppingmallservice.service.impl;
 
+import com.nhnacademy.shoppingmallservice.common.exception.LoginFailException;
 import com.nhnacademy.shoppingmallservice.common.exception.UnAuthorizedException;
 import com.nhnacademy.shoppingmallservice.dto.LoginRequestDto;
 import com.nhnacademy.shoppingmallservice.dto.MemberDto;
@@ -25,23 +26,35 @@ public class MemberAuthServiceImpl implements MemberAuthService {
             MemberDto memberDto = memberClient.findMemberByEmail(email);
             return Optional.of(memberDto);
         } catch (FeignException.NotFound e) {
+            // 회원이 없는 경우
             return Optional.empty();
+        } catch (FeignException e) {
+            // 기타 Feign 예외 발생 시
+            throw new RuntimeException("서버 오류로 인해 회원 정보를 가져올 수 없습니다.");
         }
     }
 
     // 회원인증(로그인)
     @Override
     public MemberDto authenticate(LoginRequestDto loginRequest) {
-        Optional<MemberDto> optionalMemberDto = getMemberByEmail(loginRequest.email());
+        // 이메일로 회원 정보 조회
+        MemberDto memberDto = getMemberByEmail(loginRequest.email())
+                .orElseThrow(() -> new UnAuthorizedException("회원 정보가 존재하지 않습니다."));
 
-        if (optionalMemberDto.isPresent()) {
-            MemberDto memberDto = optionalMemberDto.get();
-
-            if (passwordEncoder.matches(loginRequest.password(), memberDto.password())) {
-                return memberDto;
-            }
+        // 비밀번호 검증
+        if (!passwordEncoder.matches(loginRequest.password(), memberDto.password())) {
+            throw new UnAuthorizedException("잘못된 아이디 또는 비밀번호입니다.");
         }
-        throw new UnAuthorizedException("wrong Id or Password");
+
+        // 상태 검증
+        validateMemberState(memberDto);
+
+        return memberDto;
     }
 
+    private void validateMemberState(MemberDto memberDto) {
+        if ("WITHDRAWAL".equals(memberDto.memberStateName())) {
+            throw new LoginFailException("이미 탈퇴한 회원입니다.");
+        }
+    }
 }

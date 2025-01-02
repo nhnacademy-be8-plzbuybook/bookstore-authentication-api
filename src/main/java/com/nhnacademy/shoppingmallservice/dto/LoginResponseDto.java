@@ -1,4 +1,7 @@
 package com.nhnacademy.shoppingmallservice.dto;
 
-public record LoginResponseDto(String accessToken){
+public record LoginResponseDto(
+        String accessToken,
+        String memberStateName
+){
 }
