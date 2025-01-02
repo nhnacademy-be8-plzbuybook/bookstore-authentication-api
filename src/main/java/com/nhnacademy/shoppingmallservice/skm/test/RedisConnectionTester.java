@@ -6,13 +6,13 @@
 //
 //@Component
 //public class RedisConnectionTester {
-//    private final RedisTemplate<String, Object> jwtRedisTemplate;
+////    private final RedisTemplate<String, Object> jwtRedisTemplate;
 //    private final RedisTemplate<String, Object> verifyRedisTemplate;
 //
 //    public RedisConnectionTester(
-//            @Qualifier("jwtRedisTemplate") RedisTemplate<String, Object> jwtRedisTemplate,
+////            @Qualifier("jwtRedisTemplate") RedisTemplate<String, Object> jwtRedisTemplate,
 //            @Qualifier("verifyRedisTemplate") RedisTemplate<String, Object> verifyRedisTemplate) {
-//        this.jwtRedisTemplate = jwtRedisTemplate;
+////        this.jwtRedisTemplate = jwtRedisTemplate;
 //        this.verifyRedisTemplate = verifyRedisTemplate;
 //    }
 //
@@ -23,9 +23,9 @@
 //        String verifyValue = "verifyValue11";
 //
 //        // JWT Redis 테스트
-//        jwtRedisTemplate.opsForValue().set(jwtKey, jwtValue);
-//        Object fetchedJwtValue = jwtRedisTemplate.opsForValue().get(jwtKey);
-//        System.out.println("JWT Redis - Key: " + jwtKey + ", Value: " + fetchedJwtValue);
+////        jwtRedisTemplate.opsForValue().set(jwtKey, jwtValue);
+////        Object fetchedJwtValue = jwtRedisTemplate.opsForValue().get(jwtKey);
+////        System.out.println("JWT Redis - Key: " + jwtKey + ", Value: " + fetchedJwtValue);
 //
 //        // Verify Redis 테스트
 //        verifyRedisTemplate.opsForValue().set(verifyKey, verifyValue);
