@@ -15,11 +15,21 @@ public class SKMProperties {
     private String keystoreFile;
     private String password;
     private Redis redis;
+    private VerifyRedis verify_redis;
 
 
     @Getter
     @Setter
     public static class Redis{
+       private String host;
+       private String port;
+       private String password;
+       private String range;
+   }
+
+   @Getter
+   @Setter
+   public static class VerifyRedis{
        private String host;
        private String port;
        private String password;

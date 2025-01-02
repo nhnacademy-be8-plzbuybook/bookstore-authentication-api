@@ -1,6 +1,5 @@
 //package com.nhnacademy.shoppingmallservice.skm.test;
 //
-//import lombok.RequiredArgsConstructor;
 //import org.springframework.boot.ApplicationRunner;
 //import org.springframework.context.annotation.Bean;
 //import org.springframework.stereotype.Component;

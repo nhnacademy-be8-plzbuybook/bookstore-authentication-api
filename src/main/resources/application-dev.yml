@@ -33,6 +33,12 @@ app:
       password: 24a8a9d2549242ab81218b9279a61224
       range: aef89576c3ff472381f028ff66becb3c
 
+    verify_redis:
+      host: b2f0a980ffaa480286e37314248774cf
+      port: 5cd143faaa144e25a6c5470ec0d168be
+      password: 14fbaf7a1be74641b6832c7a16d29acc
+      range: 086ed8a388cb42f98dfa7f9272e95941
+
 
 
 server:
