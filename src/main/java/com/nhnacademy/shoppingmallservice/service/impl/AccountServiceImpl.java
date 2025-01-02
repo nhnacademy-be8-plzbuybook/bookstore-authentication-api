@@ -14,6 +14,7 @@ public class AccountServiceImpl implements AccountService {
 
     private final RedisTemplate<String, Object> verifyRedisTemplate;
     private final DooraySendClient dooraySendClient;
+    private static final String REDIS_KEY_PREFIX = "fronteend:auth:";
 
     public AccountServiceImpl(@Qualifier("verifyRedisTemplate") RedisTemplate<String, Object> verifyRedisTemplate, DooraySendClient dooraySendClient) {
         this.verifyRedisTemplate = verifyRedisTemplate;
@@ -36,14 +37,25 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public boolean verifyCode(String userId, String inputCode) {
+    public boolean verifyCode(String token, String inputCode) {
         //TODO shopping mall api 에서 회원의 등급을 dormant => active로 수정하는 api호출 필요
-        Object savedCode = verifyRedisTemplate.opsForValue().get(userId);
-        return savedCode != null && savedCode.toString().equals(inputCode);
+        String redisKey = REDIS_KEY_PREFIX + token;
+        Object userId = verifyRedisTemplate.opsForValue().get(redisKey);
+
+        if (userId == null) {
+            throw new IllegalArgumentException("유효하지 않은 토큰!");
+        }
+
+        Object savedCode = verifyRedisTemplate.opsForValue().get(userId.toString());
+        if (savedCode == null) {
+            throw new IllegalArgumentException("인증 코드가 만료되었거나 존재하지 않다!");
+        }
+
+        return savedCode.toString().equals(inputCode);
     }
 
     private String randomCode(){
         //1000 ~ 9999
-        return String.valueOf((int)(Math.random() * 9999) + 1000);
+        return String.valueOf((int)(Math.random() * 9000) + 1000);
     }
 }

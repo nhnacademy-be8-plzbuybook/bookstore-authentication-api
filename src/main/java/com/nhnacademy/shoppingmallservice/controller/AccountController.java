@@ -21,10 +21,9 @@ public class AccountController {
     }
 
     @PostMapping("/api/auth/verify-code")
-    public String verifyVerificationCode(@RequestParam("userId") String userId, @RequestParam("code") String code) {
-        boolean isValid = accountService.verifyCode(userId, code);
+    public String verifyVerificationCode(@RequestParam("token") String token, @RequestParam("code") String code) {
+        boolean isValid = accountService.verifyCode(token, code);
         if(isValid) {
-            System.out.println("인증 성공");
             return "인증이 완료 되었습니다";
         } else {
             return "인증 코드가 잘못되었습니다.";
