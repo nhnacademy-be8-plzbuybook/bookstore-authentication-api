@@ -3,6 +3,7 @@ package com.nhnacademy.shoppingmallservice.service.impl;
 import com.nhnacademy.shoppingmallservice.dto.MessagePayload;
 import com.nhnacademy.shoppingmallservice.service.AccountService;
 import com.nhnacademy.shoppingmallservice.webClient.DooraySendClient;
+import com.nhnacademy.shoppingmallservice.webClient.MemberClient;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -14,11 +15,14 @@ public class AccountServiceImpl implements AccountService {
 
     private final RedisTemplate<String, Object> verifyRedisTemplate;
     private final DooraySendClient dooraySendClient;
+    private final MemberClient memberClient;
+
     private static final String REDIS_KEY_PREFIX = "fronteend:auth:";
 
-    public AccountServiceImpl(@Qualifier("verifyRedisTemplate") RedisTemplate<String, Object> verifyRedisTemplate, DooraySendClient dooraySendClient) {
+    public AccountServiceImpl(@Qualifier("verifyRedisTemplate") RedisTemplate<String, Object> verifyRedisTemplate, DooraySendClient dooraySendClient, MemberClient memberClient) {
         this.verifyRedisTemplate = verifyRedisTemplate;
         this.dooraySendClient = dooraySendClient;
+        this.memberClient = memberClient;
     }
 
     @Override
@@ -38,9 +42,10 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public boolean verifyCode(String token, String inputCode) {
-        //TODO shopping mall api 에서 회원의 등급을 dormant => active로 수정하는 api호출 필요
         String redisKey = REDIS_KEY_PREFIX + token;
         Object userId = verifyRedisTemplate.opsForValue().get(redisKey);
+
+        memberClient.activateMemberStatus((String) userId);
 
         if (userId == null) {
             throw new IllegalArgumentException("유효하지 않은 토큰!");
