@@ -32,13 +32,13 @@ public class AuthController {
         MemberDto memberDto = memberAuthService.authenticate(loginRequest);
 
         if ("DORMANT".equals(memberDto.memberStateName())) {
-            LoginResponseDto dormantResponse = new LoginResponseDto(null, memberDto.memberStateName(), "/auth/verify-code");
+            LoginResponseDto dormantResponse = new LoginResponseDto(null, memberDto.memberStateName(), "/auth/verify-code", null);
 
             return ResponseEntity.status(HttpStatus.OK).body(dormantResponse);
         }
 
         String accessToken = tokenService.issueAccessAndRefreshToken(memberDto);
-        LoginResponseDto successResponse = new LoginResponseDto(accessToken, memberDto.memberStateName(), null);
+        LoginResponseDto successResponse = new LoginResponseDto(accessToken, memberDto.memberStateName(), null, memberDto.role());
         return ResponseEntity.status(HttpStatus.OK).body(successResponse);
     }
 
