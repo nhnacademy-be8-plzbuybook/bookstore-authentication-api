@@ -5,6 +5,7 @@ import com.nhnacademy.shoppingmallservice.common.exception.UnAuthorizedException
 import com.nhnacademy.shoppingmallservice.common.handler.GlobalExceptionHandler;
 import com.nhnacademy.shoppingmallservice.dto.LoginRequestDto;
 import com.nhnacademy.shoppingmallservice.dto.MemberDto;
+import com.nhnacademy.shoppingmallservice.service.AccountService;
 import com.nhnacademy.shoppingmallservice.service.CustomTokenService;
 import com.nhnacademy.shoppingmallservice.service.MemberAuthService;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,10 +37,13 @@ class AuthControllerTest {
     @MockBean
     private MemberAuthService memberAuthService;
 
+    @MockBean
+    private AccountService accountService;
+
     private static final String LOGIN_API_URL = "/api/auth/login";
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(new AuthController(customTokenService, memberAuthService))
+        mockMvc = MockMvcBuilders.standaloneSetup(new AuthController(customTokenService, memberAuthService, accountService))
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
     }
