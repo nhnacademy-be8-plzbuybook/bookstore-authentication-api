@@ -1,9 +1,12 @@
 package com.nhnacademy.shoppingmallservice.service.impl;
 
+import com.nhnacademy.shoppingmallservice.common.exception.InvalidTokenException;
+import com.nhnacademy.shoppingmallservice.common.provider.JwtProvider;
 import com.nhnacademy.shoppingmallservice.dto.MessagePayload;
 import com.nhnacademy.shoppingmallservice.service.AccountService;
 import com.nhnacademy.shoppingmallservice.webClient.DooraySendClient;
 import com.nhnacademy.shoppingmallservice.webClient.MemberClient;
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -16,13 +19,15 @@ public class AccountServiceImpl implements AccountService {
     private final RedisTemplate<String, Object> verifyRedisTemplate;
     private final DooraySendClient dooraySendClient;
     private final MemberClient memberClient;
+    private final JwtProvider jwtProvider;
 
     private static final String REDIS_KEY_PREFIX = "fronteend:auth:";
 
-    public AccountServiceImpl(@Qualifier("verifyRedisTemplate") RedisTemplate<String, Object> verifyRedisTemplate, DooraySendClient dooraySendClient, MemberClient memberClient) {
+    public AccountServiceImpl(@Qualifier("verifyRedisTemplate") RedisTemplate<String, Object> verifyRedisTemplate, DooraySendClient dooraySendClient, MemberClient memberClient, JwtProvider jwtProvider) {
         this.verifyRedisTemplate = verifyRedisTemplate;
         this.dooraySendClient = dooraySendClient;
         this.memberClient = memberClient;
+        this.jwtProvider = jwtProvider;
     }
 
     @Override
@@ -62,5 +67,15 @@ public class AccountServiceImpl implements AccountService {
     private String randomCode(){
         //1000 ~ 9999
         return String.valueOf((int)(Math.random() * 9000) + 1000);
+    }
+
+    @Override
+    public String getRoleFromToken(String token) {
+        try{
+            Claims claims = jwtProvider.parseToken(token);
+            return claims.get("role", String.class);
+        }catch (Exception e){
+            throw new InvalidTokenException("Invalid JWT token", e);
+        }
     }
 }
