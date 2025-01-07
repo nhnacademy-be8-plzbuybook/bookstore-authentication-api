@@ -8,6 +8,7 @@ import com.nhnacademy.shoppingmallservice.dto.MemberDto;
 import com.nhnacademy.shoppingmallservice.service.AccountService;
 import com.nhnacademy.shoppingmallservice.service.CustomTokenService;
 import com.nhnacademy.shoppingmallservice.service.MemberAuthService;
+import com.nhnacademy.shoppingmallservice.webClient.MemberClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,10 +41,13 @@ class AuthControllerTest {
     @MockBean
     private AccountService accountService;
 
+    @MockBean
+    private MemberClient memberClient;
+
     private static final String LOGIN_API_URL = "/api/auth/login";
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(new AuthController(customTokenService, memberAuthService, accountService))
+        mockMvc = MockMvcBuilders.standaloneSetup(new AuthController(customTokenService, memberAuthService, accountService, memberClient))
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
     }
@@ -110,5 +114,7 @@ class AuthControllerTest {
                 .andExpect(status().isUnauthorized())
                 .andDo(print());
     }
+
+
 }
 
