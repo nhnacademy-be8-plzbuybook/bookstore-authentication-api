@@ -68,6 +68,25 @@ public class JwtProvider {
                 .getBody();
     }
 
+    //이메일 가져오기
+    public String getEmailFromToken(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            return claims.getSubject();
+        } catch (ExpiredJwtException e) {
+            // 만료된 토큰의 경우 예외가 발생하지만, 여기서 이메일을 추출하여 반환
+            Claims claims = e.getClaims(); // 만료된 토큰의 claims를 통해 이메일 추출
+            return claims.getSubject(); // 이메일 반환
+        } catch (Exception e) {
+            throw new InvalidTokenException("Invalid JWT token", e);
+        }
+    }
+
     // 토큰 만료, 변조, 잘못된형식 분리해서 생각?
     public void validateToken(String token) {
         try {

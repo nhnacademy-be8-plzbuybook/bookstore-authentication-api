@@ -18,13 +18,24 @@ import org.springframework.web.bind.annotation.RestController;
 public class TokenController {
     private final CustomTokenService tokenService;
 
+    //feign clinet는 HttpServletResponse가 안됨
+//    @PostMapping("/api/auth/access-token/re-issue")
+//    public ResponseEntity<AccessTokenReIssueResponseDto> reIssueAccessToken(@Valid @RequestBody AccessTokenReIssueRequestDto reIssueRequest,
+//                                                                            HttpServletResponse response) {
+//
+//        String email = reIssueRequest.email();
+//        String reIssuedAccessToken = tokenService.reissueAccessToken(email);
+//        tokenService.saveTokenOnCookie(response, TokenType.ACCESS, reIssuedAccessToken);
+//
+//        AccessTokenReIssueResponseDto body = new AccessTokenReIssueResponseDto(reIssuedAccessToken);
+//        return ResponseEntity.status(HttpStatus.CREATED).body(body);
+//    }
+
     @PostMapping("/api/auth/access-token/re-issue")
-    public ResponseEntity<AccessTokenReIssueResponseDto> reIssueAccessToken(@Valid @RequestBody AccessTokenReIssueRequestDto reIssueRequest,
-                                                                            HttpServletResponse response) {
+    public ResponseEntity<AccessTokenReIssueResponseDto> reIssueAccessToken(@Valid @RequestBody AccessTokenReIssueRequestDto reIssueRequest) {
 
         String email = reIssueRequest.email();
         String reIssuedAccessToken = tokenService.reissueAccessToken(email);
-        tokenService.saveTokenOnCookie(response, TokenType.ACCESS, reIssuedAccessToken);
 
         AccessTokenReIssueResponseDto body = new AccessTokenReIssueResponseDto(reIssuedAccessToken);
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
