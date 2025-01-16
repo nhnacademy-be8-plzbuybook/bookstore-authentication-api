@@ -73,6 +73,19 @@ public class AuthController {
     }
 
 
+    @GetMapping("/api/auth/email")
+    public ResponseEntity<String> getEmailFromToken(@RequestHeader("Authorization") String authorizationHeader){
+        try{
+            String token = authorizationHeader.substring(7);
+            String email = accountService.getEmailFromToken(token);
+            return ResponseEntity.ok(email);
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
+
+
 
 //    @PostMapping("/api/auth/login")
 //    public ResponseEntity<MemberDto> login(@Valid @RequestBody LoginRequestDto loginRequest) {
