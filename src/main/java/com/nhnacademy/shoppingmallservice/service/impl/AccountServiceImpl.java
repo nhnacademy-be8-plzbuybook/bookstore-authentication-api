@@ -7,6 +7,8 @@ import com.nhnacademy.shoppingmallservice.service.AccountService;
 import com.nhnacademy.shoppingmallservice.webClient.DooraySendClient;
 import com.nhnacademy.shoppingmallservice.webClient.MemberClient;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -74,6 +76,19 @@ public class AccountServiceImpl implements AccountService {
         try{
             Claims claims = jwtProvider.parseToken(token);
             return claims.get("role", String.class);
+        }catch (Exception e){
+            throw new InvalidTokenException("Invalid JWT token", e);
+        }
+    }
+
+    @Override
+    public String getEmailFromToken(String token) {
+        try{
+            return jwtProvider.getEmailFromToken(token);
+        }catch (ExpiredJwtException e){
+            //만료된 토큰에서 이메일을 빼올때 여기를 탄다
+            String email = jwtProvider.getEmailFromToken(token);
+            return email;
         }catch (Exception e){
             throw new InvalidTokenException("Invalid JWT token", e);
         }
