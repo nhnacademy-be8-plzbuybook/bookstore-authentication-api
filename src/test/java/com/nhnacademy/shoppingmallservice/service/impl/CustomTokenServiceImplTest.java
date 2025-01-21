@@ -8,6 +8,7 @@ import com.nhnacademy.shoppingmallservice.enums.TokenType;
 import com.nhnacademy.shoppingmallservice.service.CookieService;
 import com.nhnacademy.shoppingmallservice.service.RedisService;
 import com.nhnacademy.shoppingmallservice.webClient.MemberClient;
+import feign.FeignException;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Test;
@@ -32,7 +33,7 @@ class CustomTokenServiceImplTest {
     @Mock
     private RedisService redisService;
     @Mock
-    MemberClient memberClient;
+    private MemberClient memberClient;
     @InjectMocks
     private CustomTokenServiceImpl customTokenService;
 
@@ -43,6 +44,8 @@ class CustomTokenServiceImplTest {
         HttpServletResponse mockResponse = mock(HttpServletResponse.class);
         MemberDto memberDto = mock(MemberDto.class);
         when(memberDto.memberStateName()).thenReturn("WITHDRAWAL");
+
+        // when & then
         Exception e = assertThrows(LoginFailException.class, () -> customTokenService.issueJwt(mockResponse, memberDto));
         assertEquals("이미 탈퇴한 회원입니다.", e.getMessage());
 
@@ -84,14 +87,37 @@ class CustomTokenServiceImplTest {
     }
 
     @Test
+    void reIssueAccessToken_member_not_found() {
+        // given
+        String email = "nonexistent@email.com";
+        String refreshTokenKey = "refresh_token:" + email;
+        String refreshToken = "refreshToken";
+
+        // Mock 설정
+        lenient().when(jwtProvider.getRefreshTokenKey(email)).thenReturn(refreshTokenKey);  // lenient 추가
+        lenient().when(redisService.getValueFromRedis(refreshTokenKey)).thenReturn(refreshToken);  // lenient 추가
+        lenient().doNothing().when(jwtProvider).validateToken(refreshToken);  // lenient 추가
+
+        // memberClient가 예외를 던지도록 설정
+        when(memberClient.findMemberByEmail(email)).thenThrow(FeignException.NotFound.class);
+
+        // when & then
+        LoginFailException exception = assertThrows(LoginFailException.class, () -> customTokenService.reissueAccessToken(email));
+        assertEquals("회원 정보가 존재하지 않습니다.", exception.getMessage());
+
+        // verify
+        verify(memberClient).findMemberByEmail(email);  // memberClient 호출 검증
+    }
+
+    @Test
     void reIssueAccessToken_blank_email() {
-        //given
+        // given
         String email = " ";
 
-        //when
+        // when
         Exception e = assertThrows(IllegalArgumentException.class , () -> customTokenService.reissueAccessToken(email));
 
-        //then
+        // then
         assertEquals("parameter cant not be blank", e.getMessage());
     }
 
@@ -120,18 +146,16 @@ class CustomTokenServiceImplTest {
         verify(jwtProvider, never()).generateAccessToken(any(MemberDto.class)); // 토큰 생성이 호출되지 않음을 검증
     }
 
-
-
     @Test
     void saveTokenOnCookie_invalid_token() {
-        //given
+        // given
         String invalidToken = "invalidToken";
         doThrow(InvalidTokenException.class).when(jwtProvider).validateToken(invalidToken);
 
-        //when
+        // when & then
         assertThrows(InvalidTokenException.class, () -> customTokenService.saveTokenOnCookie(mock(HttpServletResponse.class), TokenType.ACCESS, invalidToken));
 
-        //then
+        // verify
         verify(jwtProvider, never()).getAccessExpirationTime();
         verify(jwtProvider, never()).getRefreshExpirationTime();
         verify(cookieService, never()).saveOnCookie(any(), anyString(), anyString(), anyInt());
@@ -146,7 +170,7 @@ class CustomTokenServiceImplTest {
 
         when(jwtProvider.getAccessExpirationTime()).thenReturn(expiry);
 
-        //when
+        // when
         customTokenService.saveTokenOnCookie(response, TokenType.ACCESS, accessToken);
 
         // then
@@ -167,7 +191,7 @@ class CustomTokenServiceImplTest {
 
         when(jwtProvider.getRefreshExpirationTime()).thenReturn(expiry);
 
-        //when
+        // when
         customTokenService.saveTokenOnCookie(response, TokenType.REFRESH, refreshToken);
 
         // then
@@ -177,6 +201,67 @@ class CustomTokenServiceImplTest {
 
         int calculatedExpiry = (int) expiry / 1000;
         verify(cookieService).saveOnCookie(response, "refreshToken", refreshToken, calculatedExpiry);
+    }
+
+    @Test
+    void issueAccessToken() {
+        // given
+        MemberDto memberDto = new MemberDto("test@example.com", null, "ROLE_MEMBER", "ACTIVE");
+        when(jwtProvider.generateAccessToken(memberDto)).thenReturn("accessToken");
+
+        // when
+        String token = customTokenService.issueAccessToken(memberDto);
+
+        // then
+        assertEquals("accessToken", token);
+        verify(jwtProvider).generateAccessToken(memberDto);
+    }
+
+    @Test
+    void issueRefreshToken() {
+        // given
+        MemberDto memberDto = new MemberDto("test@example.com", null, "ROLE_MEMBER", "ACTIVE");
+        when(jwtProvider.generateRefreshToken(memberDto)).thenReturn("refreshToken");
+
+        // when
+        String token = customTokenService.issueRefreshToken(memberDto);
+
+        // then
+        assertEquals("refreshToken", token);
+        verify(jwtProvider).generateRefreshToken(memberDto);
+    }
+
+    @Test
+    void reIssueAccessToken_missing_claims() {
+        // given
+        String email = "test@email.com";
+        String refreshTokenKey = "refresh_token:" + email;
+        String refreshToken = "refreshToken";
+        Claims mockClaims = mock(Claims.class);
+        MemberDto memberDto = new MemberDto(email, null, "ROLE_MEMBER", "ACTIVE");
+
+        // Mock 설정
+        when(jwtProvider.getRefreshTokenKey(email)).thenReturn(refreshTokenKey);
+        when(redisService.getValueFromRedis(refreshTokenKey)).thenReturn(refreshToken);
+        doNothing().when(jwtProvider).validateToken(refreshToken);
+        when(jwtProvider.parseToken(refreshToken)).thenReturn(mockClaims);
+        when(mockClaims.get("role")).thenReturn(null);  // role이 null인 경우
+        when(mockClaims.get("memberStateName")).thenReturn("ACTIVE");
+        when(memberClient.findMemberByEmail(email)).thenReturn(memberDto);
+
+        // when & then
+        LoginFailException exception = assertThrows(LoginFailException.class, () -> customTokenService.reissueAccessToken(email));
+        assertEquals("토큰에 필수 클레임 값이 누락되었습니다.", exception.getMessage());
+
+        // verify
+        verify(jwtProvider).getRefreshTokenKey(email);
+        verify(redisService).getValueFromRedis(refreshTokenKey);
+        verify(jwtProvider).validateToken(refreshToken);
+        verify(jwtProvider).parseToken(refreshToken);
+        verify(mockClaims).get("role");
+        verify(mockClaims).get("memberStateName");
+        verify(memberClient).findMemberByEmail(email);
+        verify(jwtProvider, never()).generateAccessToken(any(MemberDto.class));  // 토큰 생성이 호출되지 않음
     }
 
 }
