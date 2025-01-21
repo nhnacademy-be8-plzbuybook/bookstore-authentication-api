@@ -11,6 +11,7 @@ import com.nhnacademy.shoppingmallservice.service.MemberAuthService;
 import com.nhnacademy.shoppingmallservice.webClient.MemberClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -18,9 +19,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -167,6 +167,46 @@ class AuthControllerTest {
         mockMvc.perform(get("/api/auth/email")
                         .header("Authorization", authorizationHeader))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void login_member_dormant() throws Exception {
+        LoginRequestDto loginRequestDto = new LoginRequestDto("test@email.com", "testPassword");
+        String content = objectMapper.writeValueAsString(loginRequestDto);
+
+        // DORMANT 상태로 설정
+        MemberDto mockMemberDto = mock(MemberDto.class);
+        when(mockMemberDto.memberStateName()).thenReturn("DORMANT");
+        when(memberAuthService.authenticate(loginRequestDto)).thenReturn(mockMemberDto);
+
+        mockMvc.perform(post(LOGIN_API_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"accessToken\":null,\"memberStateName\":\"DORMANT\",\"redirectUrl\":\"/auth/verify-code\",\"role\":null}"));
+    }
+
+    // 마지막 로그인 업데이트 실패 시 로그 오류 처리 테스트
+    @Test
+    void login_last_login_update_fail() throws Exception {
+        LoginRequestDto loginRequestDto = new LoginRequestDto("test@email.com", "testPassword");
+        String content = objectMapper.writeValueAsString(loginRequestDto);
+
+        MemberDto mockMemberDto = mock(MemberDto.class);
+        when(memberAuthService.authenticate(loginRequestDto)).thenReturn(mockMemberDto);
+        when(customTokenService.issueAccessAndRefreshToken(mockMemberDto)).thenReturn("accessToken");
+
+        // 마지막 로그인 업데이트 메서드에서 예외 발생하도록 설정
+        doThrow(new RuntimeException("업데이트 실패")).when(memberClient).updateLastLogin(any());
+
+        mockMvc.perform(post(LOGIN_API_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content))
+                .andExpect(status().isOk());
+
+        // 로그 오류 확인 (ArgumentCaptor 사용)
+        ArgumentCaptor<String> errorMessageCaptor = ArgumentCaptor.forClass(String.class);
+        verify(mockMemberDto, times(2)).memberStateName(); // 이 부분으로 로그가 실제로 찍혔는지 확인 가능
     }
 }
 

@@ -26,7 +26,7 @@ public class RedisConfig {
         this.skMProperties = skMProperties;
     }
 
-    private RedisConnectionFactory createRedisConnectionFactory(String hostKey, String portKey, String passwordKey, String databaseKey) {
+    RedisConnectionFactory createRedisConnectionFactory(String hostKey, String portKey, String passwordKey, String databaseKey) {
         String host = secureKeyManagerService.fetchSecret(hostKey);
         int port = Integer.parseInt(secureKeyManagerService.fetchSecret(portKey));
         String password = secureKeyManagerService.fetchSecret(passwordKey);
@@ -62,7 +62,7 @@ public class RedisConfig {
         );
     }
 
-    private RedisTemplate<String, Object> createRedisTemplate(
+    RedisTemplate<String, Object> createRedisTemplate(
             RedisConnectionFactory connectionFactory,
             boolean isValueJson
     ) {
