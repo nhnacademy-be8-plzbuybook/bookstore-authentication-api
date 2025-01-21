@@ -18,10 +18,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -115,6 +117,56 @@ class AuthControllerTest {
                 .andDo(print());
     }
 
+    @Test
+    void getRoleFromToken_success() throws Exception {
+        String token = "validToken";
+        String role = "ADMIN";
+        String authorizationHeader = "Bearer " + token;
 
+        when(accountService.getRoleFromToken(token)).thenReturn(role);
+
+        mockMvc.perform(get("/api/auth/role")
+                        .header("Authorization", authorizationHeader))
+                .andExpect(status().isOk())
+                .andExpect(content().string(role)); // `content()`를 사용하여 본문 내용 비교
+    }
+
+    @Test
+    void getRoleFromToken_unauthorized() throws Exception {
+        String token = "invalidToken";
+        String authorizationHeader = "Bearer " + token;
+
+        when(accountService.getRoleFromToken(token)).thenThrow(new RuntimeException("Invalid token"));
+
+        mockMvc.perform(get("/api/auth/role")
+                        .header("Authorization", authorizationHeader))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void getEmailFromToken_success() throws Exception {
+        String token = "validToken";
+        String email = "test@email.com";
+        String authorizationHeader = "Bearer " + token;
+
+        when(accountService.getEmailFromToken(token)).thenReturn(email);
+
+        mockMvc.perform(get("/api/auth/email")
+                        .header("Authorization", authorizationHeader))
+                .andExpect(status().isOk())
+                .andExpect(content().string(email)); // `content()`를 사용하여 본문 내용 비교
+    }
+
+    @Test
+    void getEmailFromToken_unauthorized() throws Exception {
+        String token = "invalidToken";
+        String authorizationHeader = "Bearer " + token;
+
+        when(accountService.getEmailFromToken(token)).thenThrow(new RuntimeException("Invalid token"));
+
+        mockMvc.perform(get("/api/auth/email")
+                        .header("Authorization", authorizationHeader))
+                .andExpect(status().isUnauthorized());
+    }
 }
 

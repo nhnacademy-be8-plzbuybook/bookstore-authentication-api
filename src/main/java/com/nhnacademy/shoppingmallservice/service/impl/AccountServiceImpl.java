@@ -66,7 +66,7 @@ public class AccountServiceImpl implements AccountService {
         return savedCode.toString().equals(inputCode);
     }
 
-    private String randomCode(){
+    protected String randomCode(){
         //1000 ~ 9999
         return String.valueOf((int)(Math.random() * 9000) + 1000);
     }

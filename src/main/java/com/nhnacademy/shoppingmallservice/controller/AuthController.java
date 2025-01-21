@@ -28,10 +28,6 @@ public class AuthController {
     private final AccountService accountService;
     private final MemberClient memberClient;
 
-    @GetMapping("/")
-    public String hi() {
-        return "hi";
-    }
 
     @PostMapping("/api/auth/login")
     public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequest, HttpServletResponse response) {
