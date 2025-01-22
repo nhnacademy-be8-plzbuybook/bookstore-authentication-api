@@ -1,0 +1,32 @@
+spring:
+  config:
+    import: classpath:application-secret.yml
+  application:
+    name: authentication
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+
+  data:
+    redis:
+      host: 220.67.216.14
+      port: 6379
+      password: "*N2vya7H@muDTwdNMR!"
+
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:10149/eureka
+
+
+
+server:
+  port: 10145

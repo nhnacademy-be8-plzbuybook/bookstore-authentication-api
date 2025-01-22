@@ -1,47 +1,53 @@
 <configuration>
-    <!-- 콘솔에 로그를 출력하는 appender 설정 -->
+    <!-- 스프링이 제공하는 프로퍼티 로드 -->
+    <springProperty scope="context" name="CONSOLE_LOG_PATTERN" source="logging.pattern.console"/>
+    <springProperty scope="context" name="FILE_LOG_PATTERN" source="logging.pattern.file"/>
+    <springProperty scope="context" name="LOG_FILE" source="logging.file.name"/>
+    <springProperty scope="context" name="LOG_PATH" source="logging.file.path"/>
+
+    <!-- 콘솔 출력 Appender -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern> %green(%d{yyyy-MM-dd HH:mm:ss}) %highlight([%5p]) %yellow([${PID:-}]) --- %magenta([%thread]) %cyan(%logger{36}:%L) :  %msg%n</pattern>
         </encoder>
     </appender>
 
-    <!-- 운영환경(Prod) 프로필 설정 -->
-    <springProfile name="prod">
-        <!-- LogNCrashHttpAppender 선언 -->
-        <appender name="logNCrashHttp" class="com.nhnacademy.shoppingmallservice.common.log.LogCrashAppender">
-            <url>https://api-logncrash.cloud.toast.com/v2/log</url>
-        </appender>
-
-        <!-- AsyncAppender 설정 -->
-        <appender name="LNCS-APPENDER" class="ch.qos.logback.classic.AsyncAppender">
-            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-                <level>WARN</level>
-            </filter>
-            <includeCallerData value="false"/>
-            <queueSize value="2048"/>
-            <neverBlock value="true"/>
-            <maxFlushTime value="60000"/>
-            <appender-ref ref="logNCrashHttp"/>
-        </appender>
-
-        <!-- 특정 로거 설정 -->
-        <logger name="user-logger" additivity="false">
-            <appender-ref ref="LNCS-APPENDER"/>
-        </logger>
-
-        <!-- 루트 로거 설정 -->
-        <root level="WARN">
-            <appender-ref ref="STDOUT"/>
-            <appender-ref ref="LNCS-APPENDER"/>
-        </root>
-    </springProfile>
+    <!-- 파일 출력 Appender -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 로그 파일 저장 경로 -->
+        <file>${LOG_PATH:-./logs}/application.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <maxFileSize>10MB</maxFileSize>
+            <fileNamePattern>${LOG_PATH:-./logs}/application-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>10</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
 
     <!-- 개발환경(Dev) 프로필 설정 -->
     <springProfile name="dev">
-        <root level="INFO">
+        <!-- 로그 레벨 DEBUG -->
+        <root level="DEBUG">
             <appender-ref ref="STDOUT"/>
+            <appender-ref ref="FILE"/>
         </root>
     </springProfile>
 
+    <!-- 운영환경(Prod) 프로필 설정 -->
+    <springProfile name="prod">
+        <!-- 로그 레벨 ERROR -->
+        <root level="ERROR">
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="nhn">
+        <!-- 로그 레벨 DEBUG -->
+        <root level="DEBUG">
+            <appender-ref ref="STDOUT"/>
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
 </configuration>

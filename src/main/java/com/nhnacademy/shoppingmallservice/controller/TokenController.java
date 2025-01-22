@@ -2,9 +2,7 @@ package com.nhnacademy.shoppingmallservice.controller;
 
 import com.nhnacademy.shoppingmallservice.dto.AccessTokenReIssueRequestDto;
 import com.nhnacademy.shoppingmallservice.dto.AccessTokenReIssueResponseDto;
-import com.nhnacademy.shoppingmallservice.enums.TokenType;
 import com.nhnacademy.shoppingmallservice.service.CustomTokenService;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

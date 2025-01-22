@@ -1,8 +1,7 @@
 package com.nhnacademy.shoppingmallservice.common.config;
 
-import com.nhnacademy.shoppingmallservice.skm.properties.SKMProperties;
-import com.nhnacademy.shoppingmallservice.skm.service.SecureKeyManagerService;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -18,48 +17,34 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 public class RedisConfig {
 
-    private final SecureKeyManagerService secureKeyManagerService;
-    private final SKMProperties skMProperties;
+    @Value("${spring.data.redis.port}")
+    private String host;
 
-    public RedisConfig(SecureKeyManagerService secureKeyManagerService, SKMProperties skMProperties) {
-        this.secureKeyManagerService = secureKeyManagerService;
-        this.skMProperties = skMProperties;
-    }
+    @Value("${spring.data.redis.port}")
+    private int port;
 
-    RedisConnectionFactory createRedisConnectionFactory(String hostKey, String portKey, String passwordKey, String databaseKey) {
-        String host = secureKeyManagerService.fetchSecret(hostKey);
-        int port = Integer.parseInt(secureKeyManagerService.fetchSecret(portKey));
-        String password = secureKeyManagerService.fetchSecret(passwordKey);
-        int database = Integer.parseInt(secureKeyManagerService.fetchSecret(databaseKey));
-
-        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
-        config.setHostName(host);
-        config.setPort(port);
-        config.setPassword(password);
-        config.setDatabase(database);
-
-        return new LettuceConnectionFactory(config);
-    }
+    @Value("${spring.data.redis.password}")
+    private String password;
 
 
     @Bean(name = "jwtRedisConnectionFactory")
     public RedisConnectionFactory jwtRedisConnectionFactory() {
-        return createRedisConnectionFactory(
-                skMProperties.getRedis().getHost(),
-                skMProperties.getRedis().getPort(),
-                skMProperties.getRedis().getPassword(),
-                skMProperties.getRedis().getRange()
-        );
+        RedisStandaloneConfiguration redisConfig = new RedisStandaloneConfiguration();
+        redisConfig.setHostName(host);
+        redisConfig.setPort(port);
+        redisConfig.setPassword(password);
+        redisConfig.setDatabase(231);
+        return new LettuceConnectionFactory(redisConfig);
     }
 
     @Bean(name = "verifyCodeRedisConnectionFactory")
     public RedisConnectionFactory verifyCodeRedisConnectionFactory() {
-        return createRedisConnectionFactory(
-                skMProperties.getVerify_redis().getHost(),
-                skMProperties.getVerify_redis().getPort(),
-                skMProperties.getVerify_redis().getPassword(),
-                skMProperties.getVerify_redis().getRange()
-        );
+        RedisStandaloneConfiguration redisConfig = new RedisStandaloneConfiguration();
+        redisConfig.setHostName(host);
+        redisConfig.setPort(port);
+        redisConfig.setPassword(password);
+        redisConfig.setDatabase(234);
+        return new LettuceConnectionFactory(redisConfig);
     }
 
     RedisTemplate<String, Object> createRedisTemplate(
