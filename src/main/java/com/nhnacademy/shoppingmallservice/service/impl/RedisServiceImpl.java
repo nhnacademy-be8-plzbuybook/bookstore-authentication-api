@@ -2,7 +2,6 @@ package com.nhnacademy.shoppingmallservice.service.impl;
 
 import com.nhnacademy.shoppingmallservice.common.exception.NotFoundException;
 import com.nhnacademy.shoppingmallservice.service.RedisService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
