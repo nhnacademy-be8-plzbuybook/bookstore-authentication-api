@@ -8,11 +8,11 @@ import com.nhnacademy.shoppingmallservice.webClient.DooraySendClient;
 import com.nhnacademy.shoppingmallservice.webClient.MemberClient;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
 import java.time.Duration;
 
 @Service
@@ -68,7 +68,7 @@ public class AccountServiceImpl implements AccountService {
 
     protected String randomCode(){
         //1000 ~ 9999
-        return String.valueOf((int)(Math.random() * 9000) + 1000);
+        return String.valueOf(new SecureRandom().nextInt() * 9000) + 1000;
     }
 
     @Override

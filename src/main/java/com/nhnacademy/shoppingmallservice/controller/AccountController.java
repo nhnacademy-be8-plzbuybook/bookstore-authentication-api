@@ -2,7 +2,6 @@ package com.nhnacademy.shoppingmallservice.controller;
 
 import com.nhnacademy.shoppingmallservice.service.AccountService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
