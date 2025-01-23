@@ -14,9 +14,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.lang.model.element.NestingKind;
-import java.lang.reflect.Member;
-
 @RequiredArgsConstructor
 @Service
 public class CustomTokenServiceImpl implements CustomTokenService {

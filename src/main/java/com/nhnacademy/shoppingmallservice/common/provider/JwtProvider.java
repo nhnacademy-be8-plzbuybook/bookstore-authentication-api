@@ -7,7 +7,6 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.oauth2.jwt.JwtValidationException;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
