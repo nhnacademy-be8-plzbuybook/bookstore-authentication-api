@@ -39,6 +39,12 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.OK).body(dormantResponse);
         }
 
+        if ("WITHDRAWAL".equals(memberDto.memberStateName())) {
+            LoginResponseDto dormantResponse = new LoginResponseDto(null, memberDto.memberStateName(), "/error/withdrawalMemberError.html", null);
+
+            return ResponseEntity.status(HttpStatus.OK).body(dormantResponse);
+        }
+
         String accessToken = tokenService.issueAccessAndRefreshToken(memberDto);
 
         try {
