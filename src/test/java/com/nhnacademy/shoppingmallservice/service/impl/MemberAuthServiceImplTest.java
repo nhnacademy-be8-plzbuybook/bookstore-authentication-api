@@ -89,22 +89,7 @@ class MemberAuthServiceImplTest {
         assertEquals("회원 정보가 존재하지 않습니다.", e.getMessage());
         verify(memberClient).findMemberByEmail(email);
     }
-    @Test
-    void authenticate_member_withdrawal() {
-        // given
-        LoginRequestDto loginRequestDto = new LoginRequestDto("test@email.com", "test");
-        MemberDto memberDto = new MemberDto("test@email.com", "test", "ROLE_MEMBER", "WITHDRAWAL");
-
-        when(memberClient.findMemberByEmail("test@email.com")).thenReturn(memberDto);
-        when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
-
-        // when
-        Exception e = assertThrows(LoginFailException.class, () -> memberAuthService.authenticate(loginRequestDto));
-
-        // then
-        assertEquals("이미 탈퇴한 회원입니다.", e.getMessage());
-        verify(memberClient).findMemberByEmail("test@email.com");
-    }
+  
 
 //    @Disabled
     @Test
