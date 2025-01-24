@@ -47,7 +47,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
         }
 
         // 상태 검증
-        validateMemberState(memberDto);
+//        validateMemberState(memberDto);
 
         return memberDto;
     }
