@@ -34,6 +34,13 @@ jobs:
           source: "target/*.jar"
           target: "/home/be8/be8-team4/auth"
 
+      - name: Create application-secret.yml from GitHub Secrets
+        run: |
+          mkdir -p src/main/resources
+          echo "$APPLICATION_SECRET_YML" > src/main/resources/application-secret.yml
+        env:
+          APPLICATION_SECRET_YML: ${{ secrets.APPLICATION_SECRET_YML }}
+
       - name: Deploy to server via SSH
         uses: appleboy/ssh-action@master
         with:
